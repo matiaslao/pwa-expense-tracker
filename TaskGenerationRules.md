@@ -9,7 +9,7 @@ Inputs:
 - AGENT_RULES.md
 
 Tasks must:
-- Modify <= 3 files
+- Modify <= 5 files
 - Be independently executable
 - Include acceptance criteria
 - Include testing requirements

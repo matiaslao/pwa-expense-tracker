@@ -77,13 +77,13 @@ Stop and request clarification.
 
 Maximum files modified per task:
 
-3
+5
 
 Preferred:
 
-1-2
+1-3
 
-If a task requires more than 3 files:
+If a task requires more than 5 files:
 
 Explain why and stop.
 
