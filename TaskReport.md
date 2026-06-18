@@ -1,21 +1,24 @@
 # Task Report
 
 ## Task
-TASK-003: Domain — Billing Period
+TASK-004: Application — Purchase Service
+TASK-005: Application — Dashboard Service
 
 ## Objective
-Implement BillingPeriod value object and BillingPeriodCalculator for automatic billing period assignment based on a configurable closing day.
+Implement the application layer services: PurchaseService (CRUD) and DashboardService (queries).
 
 ## Files Modified
-- `src/domain/config.ts` — closing day constant (`CLOSING_DAY = 15`)
-- `src/domain/valueObjects/BillingPeriod.ts` — BillingPeriod class with month/year, validation, equals/isBefore/isAfter comparison, toString
-- `src/domain/services/BillingPeriodCalculator.ts` — pure function `calculateBillingPeriod(closingDay, purchaseDate)` returning the correct BillingPeriod
-- `src/domain/services/__tests__/BillingPeriodCalculator.test.ts` — 30 unit tests (19 BillingPeriod + 11 calculator)
-- `src/domain/entities/__tests__/Purchase.test.ts` — fixed date constructors to be timezone-safe
+- `src/domain/repositories/PurchaseRepository.ts` — repository interface (save, findById, findAll, deleteById)
+- `src/domain/entities/Purchase.ts` — added `billingPeriod` field (required for service assignment)
+- `src/domain/entities/__tests__/Purchase.test.ts` — added billingPeriod test, updated constructors
+- `src/application/services/PurchaseService.ts` — CRUD service with billing period assignment via BillingPeriodCalculator
+- `src/application/services/__tests__/PurchaseService.test.ts` — 11 unit tests (create, update, delete, get, validation)
+- `src/application/services/DashboardService.ts` — query service: getCurrentPeriodSummary, getFutureCommitments, getActivePurchases
+- `src/application/services/__tests__/DashboardService.test.ts` — 6 unit tests (summary, future commitments, active purchases)
 
 ## Tests Executed
-- `npm run test` — 56 tests passed across 3 test files
-- Coverage: BillingPeriod validation (5), comparison (12), toString (2); calculator: before/on/after closing, year boundary, closing days 28/30/31, pure function check
+- `npm run test` — 74 tests passed across 5 files
+- Coverage: PurchaseService create/update/delete/get with validation; DashboardService current period summary, future commitments grouping/sorting, active purchases
 
 ## Build Result
 - `npm run build` — passes
@@ -24,4 +27,4 @@ Implement BillingPeriod value object and BillingPeriodCalculator for automatic b
 - None
 
 ## Next Recommended Task
-TASK-004: Application — Purchase Service
+TASK-006: Infrastructure — Database and Repository

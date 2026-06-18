@@ -1,5 +1,6 @@
 import type { Installment } from './Installment'
 import type { Currency } from '../types'
+import type { BillingPeriod } from '../valueObjects/BillingPeriod'
 
 export interface PurchaseProps {
   id: string
@@ -9,6 +10,7 @@ export interface PurchaseProps {
   installments: number
   purchaseDate: Date
   firstInstallmentDate: Date
+  billingPeriod: BillingPeriod
 }
 
 export class Purchase {
@@ -19,6 +21,7 @@ export class Purchase {
   readonly installments: number
   readonly purchaseDate: Date
   readonly firstInstallmentDate: Date
+  readonly billingPeriod: BillingPeriod
 
   constructor(props: PurchaseProps) {
     if (!props.id) throw new Error('id is required')
@@ -39,6 +42,7 @@ export class Purchase {
     this.installments = props.installments
     this.purchaseDate = props.purchaseDate
     this.firstInstallmentDate = props.firstInstallmentDate
+    this.billingPeriod = props.billingPeriod
   }
 
   generateInstallments(): Installment[] {

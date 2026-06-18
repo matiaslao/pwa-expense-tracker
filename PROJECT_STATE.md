@@ -8,10 +8,10 @@ Completed:
 - TASK-001: Project Scaffolding
 - TASK-002: Domain — Purchase Entity
 - TASK-003: Domain — Billing Period
-
-Pending:
 - TASK-004: Application — Purchase Service
 - TASK-005: Application — Dashboard Service
+
+Pending:
 - TASK-006: Infrastructure — Database and Repository
 - TASK-007: Presentation — Purchase Form
 - TASK-008: Presentation — Active Purchases View
@@ -25,4 +25,4 @@ Blockers:
 - None
 
 Next Action:
-Execute TASK-004: Application — Purchase Service
+Execute TASK-006: Infrastructure — Database and Repository

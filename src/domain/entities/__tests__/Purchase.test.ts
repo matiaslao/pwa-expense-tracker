@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { Purchase } from '../Purchase'
+import { BillingPeriod } from '../../valueObjects/BillingPeriod'
 
 function date(year: number, month: number, day: number): Date {
   return new Date(year, month - 1, day)
@@ -14,6 +15,7 @@ function makeValidProps(overrides: Record<string, unknown> = {}) {
     installments: 3,
     purchaseDate: date(2025, 1, 10),
     firstInstallmentDate: date(2025, 2, 15),
+    billingPeriod: new BillingPeriod(1, 2025),
     ...overrides,
   }
 }
@@ -34,6 +36,12 @@ describe('Purchase', () => {
     it('trims description', () => {
       const purchase = new Purchase(makeValidProps({ description: '  My purchase  ' }))
       expect(purchase.description).toBe('My purchase')
+    })
+
+    it('sets billing period', () => {
+      const period = new BillingPeriod(3, 2025)
+      const purchase = new Purchase(makeValidProps({ billingPeriod: period }))
+      expect(purchase.billingPeriod.equals(period)).toBe(true)
     })
   })
 
