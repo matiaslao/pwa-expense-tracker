@@ -36,14 +36,16 @@ function DashboardPage({ dashboardService }: { dashboardService: DashboardServic
 
 function PurchasesPage({ dashboardService, purchaseService }: Services) {
   const navigate = useNavigate()
+  const [refreshKey, setRefreshKey] = useState(0)
 
   return (
     <ActivePurchases
+      key={refreshKey}
       dashboardService={dashboardService}
       onEdit={(purchase) => navigate(`/edit/${purchase.id}`)}
       onDelete={async (id) => {
         await purchaseService.deletePurchase(id)
-        navigate('/purchases')
+        setRefreshKey((k) => k + 1)
       }}
     />
   )
