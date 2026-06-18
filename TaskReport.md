@@ -1,37 +1,27 @@
 # Task Report
 
 ## Task
-TASK-001: Project Scaffolding
+TASK-002: Domain — Purchase Entity
 
 ## Objective
-Initialize the project with Vite, React, TypeScript, Material UI, Dexie, PWA tooling, and test framework.
+Implement the Purchase entity and Installment value object in the domain layer with ARS-only currency enforcement.
 
 ## Files Modified
-- `package.json` — renamed to `credit-card-expense-tracker`, added all dependencies (MUI, Dexie, PWA, Vitest, RTL, jsdom) and test scripts
-- `vite.config.ts` — configured VitePWA plugin with manifest, path aliases for Clean Architecture layers
-- `vitest.config.ts` — separate Vitest config with jsdom environment, globals, setup file
-- `tsconfig.json` — references to app and node configs
-- `tsconfig.app.json` — strict mode, path aliases (`@domain/*`, `@application/*`, `@infrastructure/*`, `@presentation/*`), `ignoreDeprecations: "6.0"`
-- `tsconfig.node.json` (default)
-- `index.html` — updated title, added viewport (with `maximum-scale=1.0, user-scalable=no`), theme-color `#1976d2`, apple-touch-icon, description meta
-- `src/App.tsx` — simplified to placeholder (removed hero.png reference)
-- `src/App.css` — simplified to minimal styles
-- `src/index.css` — simplified to minimal styles
-- `src/test/setup.ts` — test setup importing `@testing-library/jest-dom`
-- `.gitignore` (default Vite)
-- `public/` directory, `src/main.tsx`, `eslint.config.js`, `src/assets/`, `src/vite-env.d.ts` (default Vite template files)
+- `src/domain/types.ts` — Currency type alias (`type Currency = 'ARS'`)
+- `src/domain/entities/Installment.ts` — Installment value object interface (`number`, `dueDate`, `amount`)
+- `src/domain/entities/Purchase.ts` — Purchase entity class with validation, installment generation, and remaining installment calculation
+- `src/domain/entities/__tests__/Installment.test.ts` — 3 unit tests
+- `src/domain/entities/__tests__/Purchase.test.ts` — 23 unit tests
 
 ## Tests Executed
-- `npm run test` — Vitest runs successfully, reports "No test files found" (expected for scaffold)
+- `npm run test` — 26 tests passed across 2 files
+- Coverage: creation, validation (9 error cases), installment generation (7 cases), remaining installments (3 cases)
 
 ## Build Result
-- `npm run build` — succeeds (TypeScript compilation + Vite build)
-- PWA manifest generated with correct app metadata
-- Service worker generated via Workbox
-- Dev server starts and responds HTTP 200
+- `npm run build` — passes
 
 ## Known Issues
 - None
 
 ## Next Recommended Task
-TASK-002: Domain — Purchase Entity
+TASK-003: Domain — Billing Period

@@ -6,9 +6,9 @@ Completed:
 - Product requirements defined
 - Architecture decisions defined
 - TASK-001: Project Scaffolding
+- TASK-002: Domain — Purchase Entity
 
 Pending:
-- TASK-002: Domain — Purchase Entity
 - TASK-003: Domain — Billing Period
 - TASK-004: Application — Purchase Service
 - TASK-005: Application — Dashboard Service
@@ -25,4 +25,4 @@ Blockers:
 - None
 
 Next Action:
-Execute TASK-002: Domain — Purchase Entity
+Execute TASK-003: Domain — Billing Period
