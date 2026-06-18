@@ -1,21 +1,21 @@
 # Task Report
 
 ## Task
-TASK-002: Domain — Purchase Entity
+TASK-003: Domain — Billing Period
 
 ## Objective
-Implement the Purchase entity and Installment value object in the domain layer with ARS-only currency enforcement.
+Implement BillingPeriod value object and BillingPeriodCalculator for automatic billing period assignment based on a configurable closing day.
 
 ## Files Modified
-- `src/domain/types.ts` — Currency type alias (`type Currency = 'ARS'`)
-- `src/domain/entities/Installment.ts` — Installment value object interface (`number`, `dueDate`, `amount`)
-- `src/domain/entities/Purchase.ts` — Purchase entity class with validation, installment generation, and remaining installment calculation
-- `src/domain/entities/__tests__/Installment.test.ts` — 3 unit tests
-- `src/domain/entities/__tests__/Purchase.test.ts` — 23 unit tests
+- `src/domain/config.ts` — closing day constant (`CLOSING_DAY = 15`)
+- `src/domain/valueObjects/BillingPeriod.ts` — BillingPeriod class with month/year, validation, equals/isBefore/isAfter comparison, toString
+- `src/domain/services/BillingPeriodCalculator.ts` — pure function `calculateBillingPeriod(closingDay, purchaseDate)` returning the correct BillingPeriod
+- `src/domain/services/__tests__/BillingPeriodCalculator.test.ts` — 30 unit tests (19 BillingPeriod + 11 calculator)
+- `src/domain/entities/__tests__/Purchase.test.ts` — fixed date constructors to be timezone-safe
 
 ## Tests Executed
-- `npm run test` — 26 tests passed across 2 files
-- Coverage: creation, validation (9 error cases), installment generation (7 cases), remaining installments (3 cases)
+- `npm run test` — 56 tests passed across 3 test files
+- Coverage: BillingPeriod validation (5), comparison (12), toString (2); calculator: before/on/after closing, year boundary, closing days 28/30/31, pure function check
 
 ## Build Result
 - `npm run build` — passes
@@ -24,4 +24,4 @@ Implement the Purchase entity and Installment value object in the domain layer w
 - None
 
 ## Next Recommended Task
-TASK-003: Domain — Billing Period
+TASK-004: Application — Purchase Service

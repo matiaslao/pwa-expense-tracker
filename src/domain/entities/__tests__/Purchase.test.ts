@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { Purchase } from '../Purchase'
 
+function date(year: number, month: number, day: number): Date {
+  return new Date(year, month - 1, day)
+}
+
 function makeValidProps(overrides: Record<string, unknown> = {}) {
   return {
     id: 'p1',
@@ -8,8 +12,8 @@ function makeValidProps(overrides: Record<string, unknown> = {}) {
     amount: 1000,
     currency: 'ARS' as const,
     installments: 3,
-    purchaseDate: new Date('2025-01-10'),
-    firstInstallmentDate: new Date('2025-02-15'),
+    purchaseDate: date(2025, 1, 10),
+    firstInstallmentDate: date(2025, 2, 15),
     ...overrides,
   }
 }
@@ -23,8 +27,8 @@ describe('Purchase', () => {
       expect(purchase.amount).toBe(1000)
       expect(purchase.currency).toBe('ARS')
       expect(purchase.installments).toBe(3)
-      expect(purchase.purchaseDate).toEqual(new Date('2025-01-10'))
-      expect(purchase.firstInstallmentDate).toEqual(new Date('2025-02-15'))
+      expect(purchase.purchaseDate).toEqual(date(2025, 1, 10))
+      expect(purchase.firstInstallmentDate).toEqual(date(2025, 2, 15))
     })
 
     it('trims description', () => {
@@ -121,24 +125,24 @@ describe('Purchase', () => {
       const purchase = new Purchase(makeValidProps({
         amount: 300,
         installments: 3,
-        firstInstallmentDate: new Date('2025-02-15'),
+        firstInstallmentDate: date(2025, 2, 15),
       }))
       const installments = purchase.generateInstallments()
-      expect(installments[0].dueDate).toEqual(new Date('2025-02-15'))
-      expect(installments[1].dueDate).toEqual(new Date('2025-03-15'))
-      expect(installments[2].dueDate).toEqual(new Date('2025-04-15'))
+      expect(installments[0].dueDate).toEqual(date(2025, 2, 15))
+      expect(installments[1].dueDate).toEqual(date(2025, 3, 15))
+      expect(installments[2].dueDate).toEqual(date(2025, 4, 15))
     })
 
     it('handles year boundary for due dates', () => {
       const purchase = new Purchase(makeValidProps({
         amount: 200,
         installments: 3,
-        firstInstallmentDate: new Date('2025-11-15'),
+        firstInstallmentDate: date(2025, 11, 15),
       }))
       const installments = purchase.generateInstallments()
-      expect(installments[0].dueDate).toEqual(new Date('2025-11-15'))
-      expect(installments[1].dueDate).toEqual(new Date('2025-12-15'))
-      expect(installments[2].dueDate).toEqual(new Date('2026-01-15'))
+      expect(installments[0].dueDate).toEqual(date(2025, 11, 15))
+      expect(installments[1].dueDate).toEqual(date(2025, 12, 15))
+      expect(installments[2].dueDate).toEqual(date(2026, 1, 15))
     })
 
     it('handles cents correctly with large amounts', () => {
