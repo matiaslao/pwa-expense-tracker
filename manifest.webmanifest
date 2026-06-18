@@ -1,0 +1,1 @@
+{"name":"Credit Card Expense Tracker","short_name":"ExpenseTracker","description":"Track credit card purchases and installment commitments","start_url":"/","display":"standalone","background_color":"#ffffff","theme_color":"#1976d2","lang":"en","scope":"/","orientation":"portrait","icons":[{"src":"/favicon.svg","sizes":"192x192","type":"image/svg+xml"}]}
