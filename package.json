@@ -1,6 +1,7 @@
 {
   "name": "credit-card-expense-tracker",
   "private": true,
+  "homepage": "https://matiaslao.github.io/pwa-expense-tracker",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
@@ -8,6 +9,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -35,6 +38,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "fake-indexeddb": "^6.2.5",
+    "gh-pages": "^6.3.0",
     "globals": "^17.6.0",
     "jsdom": "^26.0.0",
     "typescript": "~6.0.2",

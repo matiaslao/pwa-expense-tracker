@@ -29,6 +29,7 @@ export default defineConfig({
       },
     }),
   ],
+  base: '/pwa-expense-tracker/',
   resolve: {
     alias: {
       '@domain': path.resolve(__dirname, 'src/domain'),

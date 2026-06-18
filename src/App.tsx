@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { BrowserRouter, Routes, Route, useNavigate, useParams } from 'react-router-dom'
+import { HashRouter, Routes, Route, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from './presentation/components/AppShell'
 import { Dashboard } from './presentation/components/Dashboard'
 import { ActivePurchases } from './presentation/components/ActivePurchases'
@@ -113,11 +113,11 @@ function AppRoutes() {
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <AppShell>
         <AppRoutes />
       </AppShell>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
 
