@@ -8,6 +8,7 @@ import {
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
 import DateRangeIcon from '@mui/icons-material/DateRange'
+import SettingsIcon from '@mui/icons-material/Settings'
 import AddIcon from '@mui/icons-material/Add'
 import type { ReactNode } from 'react'
 
@@ -23,6 +24,7 @@ export function AppShell({ children }: AppShellProps) {
     { label: 'Dashboard', icon: <DashboardIcon />, path: '/' },
     { label: 'Purchases', icon: <ShoppingCartIcon />, path: '/purchases' },
     { label: 'Future', icon: <DateRangeIcon />, path: '/future' },
+    { label: 'Settings', icon: <SettingsIcon />, path: '/settings' },
   ]
 
   const currentTab = tabs.findIndex((t) => t.path === location.pathname)

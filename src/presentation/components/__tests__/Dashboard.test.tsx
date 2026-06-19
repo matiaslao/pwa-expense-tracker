@@ -15,7 +15,7 @@ function createMockService(summary: any): DashboardService {
 describe('Dashboard', () => {
   it('shows loading state initially', () => {
     const service = createMockService(null)
-    render(<Dashboard dashboardService={service} />)
+    render(<Dashboard dashboardService={service} closingDay={15} dueDay={29} />)
 
     expect(screen.getByText('Loading...')).toBeInTheDocument()
   })
@@ -27,7 +27,7 @@ describe('Dashboard', () => {
       installmentCount: 3,
     }
     const service = createMockService(summary)
-    render(<Dashboard dashboardService={service} />)
+    render(<Dashboard dashboardService={service} closingDay={15} dueDay={29} />)
 
     expect(await screen.findByText('2025-07')).toBeInTheDocument()
     expect(await screen.findByText('$500.00')).toBeInTheDocument()
@@ -41,9 +41,9 @@ describe('Dashboard', () => {
       installmentCount: 0,
     }
     const service = createMockService(summary)
-    render(<Dashboard dashboardService={service} />)
+    render(<Dashboard dashboardService={service} closingDay={15} dueDay={29} />)
 
-    expect(await screen.findByText('15')).toBeInTheDocument()
+    expect(await screen.findByText('15th')).toBeInTheDocument()
   })
 
   it('shows due date', async () => {
@@ -53,8 +53,8 @@ describe('Dashboard', () => {
       installmentCount: 0,
     }
     const service = createMockService(summary)
-    render(<Dashboard dashboardService={service} />)
+    render(<Dashboard dashboardService={service} closingDay={15} dueDay={29} />)
 
-    expect(await screen.findByText('25')).toBeInTheDocument()
+    expect(await screen.findByText('29th')).toBeInTheDocument()
   })
 })

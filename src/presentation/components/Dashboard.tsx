@@ -4,14 +4,31 @@ import {
   Typography,
   Box,
 } from '@mui/material'
+import { useEffect, useState } from 'react'
+import {
+  Paper,
+  Typography,
+  Box,
+} from '@mui/material'
 import type { DashboardService, CurrentPeriodSummary } from '../../application/services/DashboardService'
-import { CLOSING_DAY } from '../../domain/config'
+
+function ordinal(n: number): string {
+  if (n > 3 && n < 21) return `${n}th`
+  switch (n % 10) {
+    case 1: return `${n}st`
+    case 2: return `${n}nd`
+    case 3: return `${n}rd`
+    default: return `${n}th`
+  }
+}
 
 interface DashboardProps {
   dashboardService: DashboardService
+  closingDay: number
+  dueDay: number
 }
 
-export function Dashboard({ dashboardService }: DashboardProps) {
+export function Dashboard({ dashboardService, closingDay, dueDay }: DashboardProps) {
   const [summary, setSummary] = useState<CurrentPeriodSummary | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -30,8 +47,6 @@ export function Dashboard({ dashboardService }: DashboardProps) {
     return null
   }
 
-  const dueDate = CLOSING_DAY + 10
-
   return (
     <Paper sx={{ p: 3, mx: 2, my: 2 }}>
       <Typography variant="h6" sx={{ mb: 2 }}>
@@ -44,11 +59,11 @@ export function Dashboard({ dashboardService }: DashboardProps) {
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography color="text.secondary">Closing day</Typography>
-          <Typography>{CLOSING_DAY}</Typography>
+          <Typography>{ordinal(closingDay)}</Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography color="text.secondary">Due date</Typography>
-          <Typography>{dueDate}</Typography>
+          <Typography>{ordinal(dueDay)}</Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Typography color="text.secondary">Total due</Typography>

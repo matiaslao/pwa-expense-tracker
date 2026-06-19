@@ -19,12 +19,9 @@ interface PurchaseFormProps {
 export function PurchaseForm({ service, initialPurchase, onSuccess, onCancel }: PurchaseFormProps) {
   const [description, setDescription] = useState(initialPurchase?.description ?? '')
   const [amount, setAmount] = useState(initialPurchase?.amount.toString() ?? '')
-  const [installments, setInstallments] = useState(initialPurchase?.installments.toString() ?? '')
+  const [installments, setInstallments] = useState(initialPurchase?.installments.toString() ?? '1')
   const [purchaseDate, setPurchaseDate] = useState(
-    initialPurchase?.purchaseDate.toISOString().split('T')[0] ?? ''
-  )
-  const [firstInstallmentDate, setFirstInstallmentDate] = useState(
-    initialPurchase?.firstInstallmentDate.toISOString().split('T')[0] ?? ''
+    initialPurchase?.purchaseDate.toISOString().split('T')[0] ?? new Date().toISOString().split('T')[0]
   )
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -36,7 +33,6 @@ export function PurchaseForm({ service, initialPurchase, onSuccess, onCancel }: 
     const amountNum = parseFloat(amount)
     const installmentsNum = parseInt(installments, 10)
     const purchaseDateObj = new Date(purchaseDate + 'T12:00:00')
-    const firstInstallmentDateObj = new Date(firstInstallmentDate + 'T12:00:00')
 
     if (!description.trim()) {
       setError('Description is required')
@@ -54,10 +50,6 @@ export function PurchaseForm({ service, initialPurchase, onSuccess, onCancel }: 
       setError('Purchase date is required')
       return
     }
-    if (isNaN(firstInstallmentDateObj.getTime())) {
-      setError('First installment date is required')
-      return
-    }
 
     setSubmitting(true)
     try {
@@ -67,7 +59,6 @@ export function PurchaseForm({ service, initialPurchase, onSuccess, onCancel }: 
           amount: amountNum,
           installments: installmentsNum,
           purchaseDate: purchaseDateObj,
-          firstInstallmentDate: firstInstallmentDateObj,
         })
       } else {
         await service.createPurchase({
@@ -75,7 +66,6 @@ export function PurchaseForm({ service, initialPurchase, onSuccess, onCancel }: 
           amount: amountNum,
           installments: installmentsNum,
           purchaseDate: purchaseDateObj,
-          firstInstallmentDate: firstInstallmentDateObj,
         })
       }
       onSuccess?.()
@@ -125,16 +115,6 @@ export function PurchaseForm({ service, initialPurchase, onSuccess, onCancel }: 
           type="date"
           value={purchaseDate}
           onChange={(e) => setPurchaseDate(e.target.value)}
-          required
-          fullWidth
-          size="small"
-          InputLabelProps={{ shrink: true }}
-        />
-        <TextField
-          label="First Installment Date"
-          type="date"
-          value={firstInstallmentDate}
-          onChange={(e) => setFirstInstallmentDate(e.target.value)}
           required
           fullWidth
           size="small"

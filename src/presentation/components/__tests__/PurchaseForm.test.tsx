@@ -22,7 +22,7 @@ describe('PurchaseForm', () => {
     expect(screen.getByLabelText(/amount/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/installments/i)).toBeInTheDocument()
     expect(screen.getByLabelText(/purchase date/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/first installment date/i)).toBeInTheDocument()
+    expect(screen.queryByLabelText(/first installment date/i)).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: /create/i })).toBeInTheDocument()
   })
 
@@ -82,9 +82,10 @@ describe('PurchaseForm', () => {
 
     await user.type(screen.getByLabelText(/description/i), 'New purchase')
     await user.type(screen.getByLabelText(/amount/i), '300')
+    await user.clear(screen.getByLabelText(/installments/i))
     await user.type(screen.getByLabelText(/installments/i), '3')
+    await user.clear(screen.getByLabelText(/purchase date/i))
     await user.type(screen.getByLabelText(/purchase date/i), '2025-06-10')
-    await user.type(screen.getByLabelText(/first installment date/i), '2025-07-15')
     await user.click(screen.getByRole('button', { name: /create/i }))
 
     await waitFor(() => {
@@ -150,9 +151,8 @@ describe('PurchaseForm', () => {
 
     await user.type(screen.getByLabelText(/description/i), 'Test')
     await user.type(screen.getByLabelText(/amount/i), '100')
-    await user.type(screen.getByLabelText(/installments/i), '1')
+    await user.clear(screen.getByLabelText(/purchase date/i))
     await user.type(screen.getByLabelText(/purchase date/i), '2025-06-10')
-    await user.type(screen.getByLabelText(/first installment date/i), '2025-07-15')
     await user.click(screen.getByRole('button', { name: /create/i }))
 
     await waitFor(() => {
