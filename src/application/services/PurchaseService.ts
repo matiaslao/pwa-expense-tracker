@@ -7,7 +7,6 @@ export interface CreatePurchaseInput {
   amount: number
   installments: number
   purchaseDate: Date
-  firstInstallmentDate: Date
 }
 
 export interface UpdatePurchaseInput {
@@ -15,24 +14,27 @@ export interface UpdatePurchaseInput {
   amount?: number
   installments?: number
   purchaseDate?: Date
-  firstInstallmentDate?: Date
 }
 
 export class PurchaseService {
   private repository: PurchaseRepository
   private closingDay: number
+  private dueDay: number
 
-  constructor(repository: PurchaseRepository, closingDay: number) {
+  constructor(repository: PurchaseRepository, closingDay: number, dueDay: number) {
     this.repository = repository
     this.closingDay = closingDay
+    this.dueDay = dueDay
   }
 
   async createPurchase(input: CreatePurchaseInput): Promise<Purchase> {
     const billingPeriod = calculateBillingPeriod(this.closingDay, input.purchaseDate)
+    const firstInstallmentDate = new Date(billingPeriod.year, billingPeriod.month - 1, this.dueDay)
     const purchase = new Purchase({
       id: crypto.randomUUID(),
       ...input,
       currency: 'ARS',
+      firstInstallmentDate,
       billingPeriod,
     })
     await this.repository.save(purchase)
@@ -49,6 +51,9 @@ export class PurchaseService {
     const billingPeriod = input.purchaseDate
       ? calculateBillingPeriod(this.closingDay, input.purchaseDate)
       : existing.billingPeriod
+    const firstInstallmentDate = input.purchaseDate
+      ? new Date(billingPeriod.year, billingPeriod.month - 1, this.dueDay)
+      : existing.firstInstallmentDate
 
     const updated = new Purchase({
       id: existing.id,
@@ -57,7 +62,7 @@ export class PurchaseService {
       currency: 'ARS',
       installments: input.installments ?? existing.installments,
       purchaseDate,
-      firstInstallmentDate: input.firstInstallmentDate ?? existing.firstInstallmentDate,
+      firstInstallmentDate,
       billingPeriod,
     })
     await this.repository.save(updated)

@@ -7,6 +7,8 @@ export interface CurrentPeriodSummary {
   period: BillingPeriod
   totalDue: number
   installmentCount: number
+  closingDay: number
+  dueDay: number
 }
 
 export interface FutureCommitment {
@@ -17,10 +19,12 @@ export interface FutureCommitment {
 export class DashboardService {
   private repository: PurchaseRepository
   private closingDay: number
+  private dueDay: number
 
-  constructor(repository: PurchaseRepository, closingDay: number) {
+  constructor(repository: PurchaseRepository, closingDay: number, dueDay: number) {
     this.repository = repository
     this.closingDay = closingDay
+    this.dueDay = dueDay
   }
 
   async getCurrentPeriodSummary(): Promise<CurrentPeriodSummary> {
@@ -41,6 +45,8 @@ export class DashboardService {
       period: currentPeriod,
       totalDue,
       installmentCount: inPeriod.length,
+      closingDay: this.closingDay,
+      dueDay: this.dueDay,
     }
   }
 
