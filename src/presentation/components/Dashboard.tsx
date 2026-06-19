@@ -4,12 +4,6 @@ import {
   Typography,
   Box,
 } from '@mui/material'
-import { useEffect, useState } from 'react'
-import {
-  Paper,
-  Typography,
-  Box,
-} from '@mui/material'
 import type { DashboardService, CurrentPeriodSummary } from '../../application/services/DashboardService'
 
 function ordinal(n: number): string {
