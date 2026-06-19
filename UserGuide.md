@@ -10,22 +10,23 @@ Track credit card purchases with installment plans. Add purchases, view your cur
 2. Fill in the fields:
    - **Description** — What you bought
    - **Amount (ARS)** — Total purchase amount
-   - **Installments** — Number of installments (e.g., 12)
-   - **Purchase Date** — When you made the purchase
-   - **First Installment Date** — When the first installment is due
+   - **Installments** — Number of installments (defaults to 1)
+   - **Purchase Date** — When you made the purchase (defaults to today)
 3. Tap **Create**.
 
-The purchase appears in Active Purchases and its first installment is reflected on the Dashboard.
+The first installment date is automatically calculated based on your card's statement due date. The purchase appears in Active Purchases and its first installment is reflected on the Dashboard.
 
 ## View Dashboard
 
 The Dashboard shows the current billing period summary:
 
 - **Period** — The billing period (e.g., `2026-06`)
-- **Closing day** — Statement closing day (15th)
-- **Due date** — Payment due date (25th)
+- **Closing day** — Your configured statement closing day (e.g., 15th)
+- **Due date** — Your configured payment due date (e.g., 29th)
 - **Total due** — Sum of first installments for purchases in this period
 - **Installments** — Number of first-installment purchases in this period
+
+Closing day and due date are configurable from the **Settings** screen.
 
 ## View Active Purchases
 
@@ -48,6 +49,15 @@ Tap the **delete (trash)** icon next to a purchase. The purchase and all its ins
 
 Tap **Future** in the bottom nav to see upcoming installment amounts grouped by billing period. This shows installments beyond the current period.
 
+## Settings
+
+1. Tap **Settings** in the bottom nav.
+2. Adjust the **Closing Day** (1–31) — the day your statement closes.
+3. The **Due Date** automatically updates to Closing Day + 14. You can adjust it independently.
+4. Tap **Save**.
+
+Changes apply to new purchases only. Existing purchases keep their original billing periods and installment schedules.
+
 ## Navigation
 
 | Tab | Path | Description |
@@ -55,6 +65,7 @@ Tap **Future** in the bottom nav to see upcoming installment amounts grouped by 
 | Dashboard | `/` | Current period summary |
 | Purchases | `/purchases` | All purchases (edit/delete) |
 | Future | `/future` | Future installment commitments |
+| Settings | `/settings` | Configure closing day and due date |
 | + (FAB) | `/new` | Create new purchase |
 
 ## PWA Installation
