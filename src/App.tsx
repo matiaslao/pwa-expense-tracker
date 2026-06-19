@@ -1,37 +1,43 @@
 import { useState, useEffect, useRef } from 'react'
 import { HashRouter, Routes, Route, useNavigate, useParams } from 'react-router-dom'
+import { Typography } from '@mui/material'
 import { AppShell } from './presentation/components/AppShell'
 import { Dashboard } from './presentation/components/Dashboard'
 import { ActivePurchases } from './presentation/components/ActivePurchases'
 import { FutureCommitments } from './presentation/components/FutureCommitments'
 import { PurchaseForm } from './presentation/components/PurchaseForm'
+import { Settings } from './presentation/components/Settings'
 import { PurchaseRepositoryImpl } from './infrastructure/repositories/PurchaseRepositoryImpl'
+import { ConfigRepositoryImpl } from './infrastructure/repositories/ConfigRepositoryImpl'
 import { PurchaseService } from './application/services/PurchaseService'
 import { DashboardService } from './application/services/DashboardService'
-import { CLOSING_DAY } from './domain/config'
 import type { PurchaseService as PurchaseServiceType } from './application/services/PurchaseService'
 import type { DashboardService as DashboardServiceType } from './application/services/DashboardService'
+import type { ConfigRepository } from './domain/repositories/ConfigRepository'
+import type { CardSettings } from './domain/types/CardSettings'
 import type { Purchase } from './domain/entities/Purchase'
 
 interface Services {
   purchaseService: PurchaseServiceType
   dashboardService: DashboardServiceType
+  configRepository: ConfigRepository
 }
 
-function useServices(): Services {
+function useServices(settings: CardSettings, configRepo: ConfigRepository): Services {
   const ref = useRef<Services | null>(null)
   if (!ref.current) {
     const repo = new PurchaseRepositoryImpl()
     ref.current = {
-      purchaseService: new PurchaseService(repo, CLOSING_DAY),
-      dashboardService: new DashboardService(repo, CLOSING_DAY),
+      purchaseService: new PurchaseService(repo, settings.closingDay, settings.dueDay),
+      dashboardService: new DashboardService(repo, settings.closingDay, settings.dueDay),
+      configRepository: configRepo,
     }
   }
   return ref.current
 }
 
-function DashboardPage({ dashboardService }: { dashboardService: DashboardServiceType }) {
-  return <Dashboard dashboardService={dashboardService} />
+function DashboardPage({ dashboardService, closingDay, dueDay }: { dashboardService: DashboardServiceType; closingDay: number; dueDay: number }) {
+  return <Dashboard dashboardService={dashboardService} closingDay={closingDay} dueDay={dueDay} />
 }
 
 function PurchasesPage({ dashboardService, purchaseService }: Services) {
@@ -94,19 +100,42 @@ function EditPurchasePage({ purchaseService }: { purchaseService: PurchaseServic
   )
 }
 
+function SettingsPage({ configRepository }: { configRepository: ConfigRepository }) {
+  const navigate = useNavigate()
+  return (
+    <Settings
+      configRepository={configRepository}
+      onSave={() => navigate('/')}
+      onCancel={() => navigate('/')}
+    />
+  )
+}
+
 function AppRoutes() {
-  const { purchaseService, dashboardService } = useServices()
+  const [settings, setSettings] = useState<CardSettings | null>(null)
+  const [configRepo] = useState(() => new ConfigRepositoryImpl())
+
+  useEffect(() => {
+    configRepo.getSettings().then(setSettings)
+  }, [configRepo])
+
+  if (!settings) {
+    return <Typography sx={{ p: 2, textAlign: 'center' }}>Loading...</Typography>
+  }
+
+  const { purchaseService, dashboardService, configRepository } = useServices(settings, configRepo)
 
   return (
     <Routes>
-      <Route path="/" element={<DashboardPage dashboardService={dashboardService} />} />
+      <Route path="/" element={<DashboardPage dashboardService={dashboardService} closingDay={settings.closingDay} dueDay={settings.dueDay} />} />
       <Route
         path="/purchases"
-        element={<PurchasesPage purchaseService={purchaseService} dashboardService={dashboardService} />}
+        element={<PurchasesPage purchaseService={purchaseService} dashboardService={dashboardService} configRepository={configRepository} />}
       />
       <Route path="/future" element={<FuturePage dashboardService={dashboardService} />} />
       <Route path="/new" element={<NewPurchasePage purchaseService={purchaseService} />} />
       <Route path="/edit/:id" element={<EditPurchasePage purchaseService={purchaseService} />} />
+      <Route path="/settings" element={<SettingsPage configRepository={configRepository} />} />
     </Routes>
   )
 }
