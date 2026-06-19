@@ -88,6 +88,67 @@ describe('PurchaseService', () => {
 
       expect(purchase.firstInstallmentDate).toEqual(date(2025, 7, 29))
     })
+
+    it('handles dueDay=31 in a 30-day month by rolling to next month', async () => {
+      const repo = createMockRepository()
+      const service = new PurchaseService(repo, 15, 31)
+
+      const purchase = await service.createPurchase(
+        validCreateInput({ purchaseDate: date(2025, 4, 10) })
+      )
+
+      expect(purchase.billingPeriod.month).toBe(4)
+      expect(purchase.firstInstallmentDate).toEqual(date(2025, 5, 1))
+    })
+
+    it('handles dueDay=29 in February non-leap year by rolling to March', async () => {
+      const repo = createMockRepository()
+      const service = new PurchaseService(repo, 15, 29)
+
+      const purchase = await service.createPurchase(
+        validCreateInput({ purchaseDate: date(2025, 2, 10) })
+      )
+
+      expect(purchase.billingPeriod.month).toBe(2)
+      expect(purchase.firstInstallmentDate).toEqual(date(2025, 3, 1))
+    })
+
+    it('handles dueDay=29 in February leap year correctly', async () => {
+      const repo = createMockRepository()
+      const service = new PurchaseService(repo, 15, 29)
+
+      const purchase = await service.createPurchase(
+        validCreateInput({ purchaseDate: date(2024, 2, 10) })
+      )
+
+      expect(purchase.billingPeriod.month).toBe(2)
+      expect(purchase.firstInstallmentDate).toEqual(date(2024, 2, 29))
+    })
+
+    it('assigns next period when purchase is on closing day', async () => {
+      const repo = createMockRepository()
+      const service = new PurchaseService(repo, 15, 20)
+
+      const purchase = await service.createPurchase(
+        validCreateInput({ purchaseDate: date(2025, 6, 15) })
+      )
+
+      expect(purchase.billingPeriod.month).toBe(7)
+      expect(purchase.firstInstallmentDate).toEqual(date(2025, 7, 20))
+    })
+
+    it('handles year boundary for December purchase after closing day', async () => {
+      const repo = createMockRepository()
+      const service = new PurchaseService(repo, 15, 10)
+
+      const purchase = await service.createPurchase(
+        validCreateInput({ purchaseDate: date(2025, 12, 20) })
+      )
+
+      expect(purchase.billingPeriod.month).toBe(1)
+      expect(purchase.billingPeriod.year).toBe(2026)
+      expect(purchase.firstInstallmentDate).toEqual(date(2026, 1, 10))
+    })
   })
 
   describe('updatePurchase', () => {
