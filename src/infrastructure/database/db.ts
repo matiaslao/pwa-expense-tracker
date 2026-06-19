@@ -12,13 +12,24 @@ export interface PurchaseRecord {
   billingPeriodYear: number
 }
 
+export interface SettingsRecord {
+  key: 'card'
+  closingDay: number
+  dueDay: number
+}
+
 export class AppDatabase extends Dexie {
   purchases!: Table<PurchaseRecord, string>
+  settings!: Table<SettingsRecord, string>
 
   constructor(name = 'ExpenseTracker') {
     super(name)
     this.version(1).stores({
       purchases: 'id, purchaseDate',
+    })
+    this.version(2).stores({
+      purchases: 'id, purchaseDate',
+      settings: 'key',
     })
   }
 }
