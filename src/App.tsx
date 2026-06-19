@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { HashRouter, Routes, Route, useNavigate, useParams } from 'react-router-dom'
 import { Typography } from '@mui/material'
 import { AppShell } from './presentation/components/AppShell'
@@ -24,16 +24,14 @@ interface Services {
 }
 
 function useServices(settings: CardSettings, configRepo: ConfigRepository): Services {
-  const ref = useRef<Services | null>(null)
-  if (!ref.current) {
+  return useMemo(() => {
     const repo = new PurchaseRepositoryImpl()
-    ref.current = {
+    return {
       purchaseService: new PurchaseService(repo, settings.closingDay, settings.dueDay),
       dashboardService: new DashboardService(repo, settings.closingDay, settings.dueDay),
       configRepository: configRepo,
     }
-  }
-  return ref.current
+  }, [settings.closingDay, settings.dueDay, configRepo])
 }
 
 function DashboardPage({ dashboardService, closingDay, dueDay }: { dashboardService: DashboardServiceType; closingDay: number; dueDay: number }) {
@@ -119,11 +117,13 @@ function AppRoutes() {
     configRepo.getSettings().then(setSettings)
   }, [configRepo])
 
+  const defaultSettings: CardSettings = { closingDay: 15, dueDay: 29 }
+  const currentSettings = settings ?? defaultSettings
+  const { purchaseService, dashboardService, configRepository } = useServices(currentSettings, configRepo)
+
   if (!settings) {
     return <Typography sx={{ p: 2, textAlign: 'center' }}>Loading...</Typography>
   }
-
-  const { purchaseService, dashboardService, configRepository } = useServices(settings, configRepo)
 
   return (
     <Routes>
