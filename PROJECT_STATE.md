@@ -40,8 +40,6 @@ Completed:
 - CR-003-TASK-04: Verify build output & test on iPhone
 - CR-003-TASK-05: Add splash screen support (iOS)
 - CR-004: Active Purchases view analysis complete
-
-Pending:
 - CR-004-TASK-01: Display Purchase Date
 - CR-004-TASK-02: Conditional Installment Display
 - CR-004-TASK-03: Fix Layout Overlap
@@ -49,8 +47,11 @@ Pending:
 - CR-004-TASK-05: Add New Tests
 - CR-004-TASK-06: Update Documentation
 
+Pending:
+- None
+
 Blockers:
 - None
 
 Next Action:
-Implement CR-004 task list
+Awaiting next change request

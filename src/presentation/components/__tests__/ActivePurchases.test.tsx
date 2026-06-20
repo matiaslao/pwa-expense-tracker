@@ -57,7 +57,7 @@ describe('ActivePurchases', () => {
     const service = createMockService([purchase])
     render(<ActivePurchases dashboardService={service} />)
 
-    const item = await screen.findByText('Test purchase')
+    const item = await screen.findByText('Test purchase — 2025-06-10')
     expect(item).toBeInTheDocument()
   })
 
@@ -83,5 +83,37 @@ describe('ActivePurchases', () => {
     deleteButton.closest('button')!.click()
 
     expect(onDelete).toHaveBeenCalledWith('p1')
+  })
+
+  it('shows amount without installment info for single-installment purchase', async () => {
+    const purchase = makePurchase({ installments: 1, amount: 500, generateInstallments: vi.fn().mockReturnValue([{ number: 1, dueDate: date(2025, 7, 15), amount: 500 }]) })
+    const service = createMockService([purchase])
+    render(<ActivePurchases dashboardService={service} />)
+
+    expect(await screen.findByText('Test purchase — 2025-06-10')).toBeInTheDocument()
+    expect(screen.getByText('$500.00')).toBeInTheDocument()
+    expect(screen.queryByText(/Installments?:/)).not.toBeInTheDocument()
+  })
+
+  it('shows installment details for multi-installment purchase', async () => {
+    const purchase = makePurchase()
+    const service = createMockService([purchase])
+    render(<ActivePurchases dashboardService={service} />)
+
+    await screen.findByText('Test purchase — 2025-06-10')
+    expect(screen.getByText(/Installments: 3/)).toBeInTheDocument()
+    expect(screen.getByText(/Installment Amount:/)).toBeInTheDocument()
+    expect(screen.getByText(/100\.00/)).toBeInTheDocument()
+  })
+
+  it('shows correct remaining installments count', async () => {
+    const purchase = makePurchase({
+      getRemainingInstallments: vi.fn().mockReturnValue([1, 2]),
+    })
+    const service = createMockService([purchase])
+    render(<ActivePurchases dashboardService={service} />)
+
+    await screen.findByText('Test purchase — 2025-06-10')
+    expect(screen.getByText(/2 remaining/)).toBeInTheDocument()
   })
 })

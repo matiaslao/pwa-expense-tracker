@@ -30,12 +30,20 @@ Closing day and due date are configurable from the **Settings** screen.
 
 ## View Active Purchases
 
-Tap **Purchases** in the bottom nav to see all purchases with their installment details. Each purchase shows:
+Tap **Purchases** in the bottom nav to see all purchases with their installment details.
 
-- Description
-- Total amount
-- Number of installments
-- Remaining total amount
+Each purchase shows:
+
+- Description and purchase date (e.g., `Coffee Machine - 2026-06-15`)
+
+For single-payment purchases (1 installment):
+
+- Total amount only (e.g., `$120,000`)
+
+For installment purchases (more than 1 installment):
+
+- Total installments and remaining count
+- Installment amount (e.g., `Installment Amount: $10,000`)
 
 ### Edit a Purchase
 

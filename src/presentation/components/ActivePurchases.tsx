@@ -2,15 +2,22 @@ import { useEffect, useState } from 'react'
 import {
   List,
   ListItem,
-  ListItemText,
   IconButton,
   Typography,
   Paper,
+  Box,
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
 import type { DashboardService } from '../../application/services/DashboardService'
 import type { Purchase } from '../../domain/entities/Purchase'
+
+function formatDate(d: Date): string {
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
 
 interface ActivePurchasesProps {
   dashboardService: DashboardService
@@ -48,32 +55,45 @@ export function ActivePurchases({ dashboardService, onEdit, onDelete }: ActivePu
       </Typography>
       <List>
         {purchases.map((purchase) => {
-          const installments = purchase.generateInstallments()
-          const totalRemaining = installments.reduce((sum, inst) => sum + inst.amount, 0)
-          const count = installments.length
+          const isInstallment = purchase.installments > 1
+          const installmentAmount = purchase.amount / purchase.installments
+          const remainingCount = purchase.getRemainingInstallments(0).length
 
           return (
-            <ListItem
-              key={purchase.id}
-              secondaryAction={
-                <>
+            <ListItem key={purchase.id} sx={{ py: 1.5 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%', gap: 1 }}>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography variant="body1" sx={{ wordBreak: 'break-word' }}>
+                    {purchase.description} — {formatDate(purchase.purchaseDate)}
+                  </Typography>
+                  {isInstallment ? (
+                    <Box sx={{ mt: 0.5 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        Installments: {purchase.installments} — {remainingCount} remaining
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Installment Amount: ${installmentAmount.toFixed(2)}
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                      ${purchase.amount.toFixed(2)}
+                    </Typography>
+                  )}
+                </Box>
+                <Box sx={{ display: 'flex', flexShrink: 0, gap: 0.5 }}>
                   {onEdit && (
-                    <IconButton edge="end" aria-label="Edit" onClick={() => onEdit(purchase)} sx={{ mr: 1 }}>
+                    <IconButton size="small" aria-label="Edit" onClick={() => onEdit(purchase)}>
                       <EditIcon />
                     </IconButton>
                   )}
                   {onDelete && (
-                    <IconButton edge="end" aria-label="Delete" onClick={() => onDelete(purchase.id)}>
+                    <IconButton size="small" aria-label="Delete" onClick={() => onDelete(purchase.id)}>
                       <DeleteIcon />
                     </IconButton>
                   )}
-                </>
-              }
-            >
-              <ListItemText
-                primary={purchase.description}
-                secondary={`$${purchase.amount.toFixed(2)} — ${count} installment${count > 1 ? 's' : ''} ($${totalRemaining.toFixed(2)} remaining)`}
-              />
+                </Box>
+              </Box>
             </ListItem>
           )
         })}

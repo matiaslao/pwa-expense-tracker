@@ -57,6 +57,7 @@ Develop a mobile-first Progressive Web Application (PWA) for tracking credit car
 - Purchase date defaults to today's date on the create form
 - Installments defaults to 1 on the create form
 - First Installment Date field is removed from the purchase form
+- Active purchases display: purchase date shown next to description; single-installment purchases (installments=1) show total amount only; multi-installment purchases (installments>1) show total installments, remaining installments, and installment amount — no total amount displayed
 
 ## Success Criteria
 - Fully offline
