@@ -17,13 +17,18 @@ export default defineConfig({
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
-        scope: '/pwa-expense-tracker/',
-        start_url: '/pwa-expense-tracker/',
+        scope: '/',
+        start_url: '/',
         icons: [
           {
-            src: '/favicon.svg',
+            src: '/icons/icon-192.png',
             sizes: '192x192',
-            type: 'image/svg+xml',
+            type: 'image/png',
+          },
+          {
+            src: '/icons/icon-512.png',
+            sizes: '512x512',
+            type: 'image/png',
           },
         ],
       },

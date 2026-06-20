@@ -34,16 +34,17 @@ Completed:
 - CR-002: Change request analysis complete
 - CR-002-TASK-00: Documentation — Specs and ADRs updated for CR-002
 - CR-003: iOS PWA readiness analysis complete
-
-Pending:
 - CR-003-TASK-01: Generate PNG icons (180×180, 152×152, 120×120, 192×192, 512×512)
 - CR-003-TASK-02: Update index.html — Apple touch icon & meta tags
 - CR-003-TASK-03: Update vite.config.ts — Manifest icons & background_color
 - CR-003-TASK-04: Verify build output & test on iPhone
-- CR-003-TASK-05: Add splash screen support (optional)
+- CR-003-TASK-05: Add splash screen support (iOS)
+
+Pending:
+- None
 
 Blockers:
 - None
 
 Next Action:
-Implement CR-003 task list
+Awaiting next change request
