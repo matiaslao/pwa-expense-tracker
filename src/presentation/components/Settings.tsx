@@ -11,7 +11,7 @@ import type { CardSettings } from '../../domain/types/CardSettings'
 
 interface SettingsProps {
   configRepository: ConfigRepository
-  onSave?: () => void
+  onSave?: (settings: CardSettings) => void
   onCancel?: () => void
 }
 
@@ -34,7 +34,10 @@ export function Settings({ configRepository, onSave, onCancel }: SettingsProps) 
     setClosingDay(value)
     const num = parseInt(value, 10)
     if (!isNaN(num) && num >= 1 && num <= 31) {
-      const defaultDue = Math.min(num + 14, 28)
+      const now = new Date()
+      const closingDate = new Date(now.getFullYear(), now.getMonth(), num)
+      closingDate.setDate(closingDate.getDate() + 14)
+      const defaultDue = closingDate.getDate()
       setDueDay(defaultDue.toString())
     }
   }
@@ -58,7 +61,7 @@ export function Settings({ configRepository, onSave, onCancel }: SettingsProps) 
     setSaving(true)
     try {
       await configRepository.saveSettings({ closingDay: closingNum, dueDay: dueNum })
-      onSave?.()
+      onSave?.({ closingDay: closingNum, dueDay: dueNum })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {

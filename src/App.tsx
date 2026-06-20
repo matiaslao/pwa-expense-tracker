@@ -98,12 +98,15 @@ function EditPurchasePage({ purchaseService }: { purchaseService: PurchaseServic
   )
 }
 
-function SettingsPage({ configRepository }: { configRepository: ConfigRepository }) {
+function SettingsPage({ configRepository, onSettingsChanged }: { configRepository: ConfigRepository; onSettingsChanged: (s: CardSettings) => void }) {
   const navigate = useNavigate()
   return (
     <Settings
       configRepository={configRepository}
-      onSave={() => navigate('/')}
+      onSave={(settings: CardSettings) => {
+        onSettingsChanged(settings)
+        navigate('/')
+      }}
       onCancel={() => navigate('/')}
     />
   )
@@ -135,7 +138,7 @@ function AppRoutes() {
       <Route path="/future" element={<FuturePage dashboardService={dashboardService} />} />
       <Route path="/new" element={<NewPurchasePage purchaseService={purchaseService} />} />
       <Route path="/edit/:id" element={<EditPurchasePage purchaseService={purchaseService} />} />
-      <Route path="/settings" element={<SettingsPage configRepository={configRepository} />} />
+      <Route path="/settings" element={<SettingsPage configRepository={configRepository} onSettingsChanged={setSettings} />} />
     </Routes>
   )
 }

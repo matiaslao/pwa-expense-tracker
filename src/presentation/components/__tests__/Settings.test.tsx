@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Settings } from '../Settings'
@@ -12,6 +12,9 @@ function createMockRepo(settings = { closingDay: 15, dueDay: 29 }): ConfigReposi
 }
 
 describe('Settings', () => {
+  afterEach(() => {
+    vi.useRealTimers()
+  })
   it('shows loading state initially', () => {
     const repo = createMockRepo()
     render(<Settings configRepository={repo} />)
@@ -40,6 +43,38 @@ describe('Settings', () => {
     expect(dueInput).toHaveValue(24)
   })
 
+  it('auto-calculates due day across month boundary', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date(2026, 5, 15))
+
+    const repo = createMockRepo()
+    const user = userEvent.setup()
+    render(<Settings configRepository={repo} />)
+
+    const closingInput = await screen.findByLabelText(/closing day/i)
+    await user.clear(closingInput)
+    await user.type(closingInput, '20')
+
+    const dueInput = screen.getByLabelText(/due date/i)
+    expect(dueInput).toHaveValue(4)
+  })
+
+  it('auto-calculates due day within same month', async () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date(2026, 5, 15))
+
+    const repo = createMockRepo()
+    const user = userEvent.setup()
+    render(<Settings configRepository={repo} />)
+
+    const closingInput = await screen.findByLabelText(/closing day/i)
+    await user.clear(closingInput)
+    await user.type(closingInput, '5')
+
+    const dueInput = screen.getByLabelText(/due date/i)
+    expect(dueInput).toHaveValue(19)
+  })
+
   it('calls saveSettings on valid submit', async () => {
     const repo = createMockRepo()
     const onSave = vi.fn()
@@ -52,7 +87,7 @@ describe('Settings', () => {
     await waitFor(() => {
       expect(repo.saveSettings).toHaveBeenCalledWith({ closingDay: 15, dueDay: 29 })
     })
-    expect(onSave).toHaveBeenCalled()
+    expect(onSave).toHaveBeenCalledWith({ closingDay: 15, dueDay: 29 })
   })
 
   it('shows validation error for invalid closing day', async () => {

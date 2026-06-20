@@ -31,7 +31,7 @@ export function Dashboard({ dashboardService, closingDay, dueDay }: DashboardPro
       setSummary(result)
       setLoading(false)
     })
-  }, [dashboardService])
+  }, [dashboardService, closingDay, dueDay])
 
   if (loading) {
     return <Typography sx={{ p: 2, textAlign: 'center' }}>Loading...</Typography>

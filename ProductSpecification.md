@@ -50,7 +50,7 @@ Develop a mobile-first Progressive Web Application (PWA) for tracking credit car
 - Installments are generated dynamically
 - Active purchase = remaining installments > 0
 - Closing day is user-configurable (1–31), persisted in IndexedDB
-- Due day is user-configurable (1–31), defaults to closing day + 14
+- Due day is user-configurable (1–31), defaults to closing day + 14 using calendar arithmetic (handles month boundaries via JavaScript Date)
 - Closing day and due day can be changed at any time
 - Changing closing day affects only new purchases; existing billing periods are preserved
 - First installment date is auto-calculated from the purchase's billing period due date

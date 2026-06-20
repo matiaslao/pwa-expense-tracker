@@ -34,3 +34,17 @@ Configurable Closing & Due Dates
 
 ## ADR-011
 First Installment Date Auto-Calculation
+
+## ADR-012
+Dashboard Refresh After Settings Change
+
+*Context: Settings (closing day, due day) are persisted via ConfigRepository, but the Dashboard only fetches current period data on mount. After saving new settings, stale data is displayed until full page reload.*
+
+*Decision: Propagate saved settings from the Settings component up to AppRoutes' React state via an onSettingsChanged callback. The Dashboard fetches data in a useEffect that depends on closingDay and dueDay props, so it re-fetches when settings change. This keeps the change within the presentation layer and avoids restructuring service lifetimes.*
+
+## ADR-013
+Calendar-Based Due Date Default Calculation
+
+*Context: The original default due date calculation (closingDay + 14, capped at 28) fails for dates near month boundaries. For example, closingDay=20 produces dueDay=34, which is not a valid day of month.*
+
+*Decision: Use JavaScript's built-in Date arithmetic (setDate(getDate() + 14)) which properly handles month rollover. This is a UI convenience default — the user can always override the due day manually. No business logic changes are required.*

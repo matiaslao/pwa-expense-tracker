@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { Dashboard } from '../Dashboard'
 import type { DashboardService } from '../../../application/services/DashboardService'
 import { BillingPeriod } from '../../../domain/valueObjects/BillingPeriod'
@@ -56,5 +56,24 @@ describe('Dashboard', () => {
     render(<Dashboard dashboardService={service} closingDay={15} dueDay={29} />)
 
     expect(await screen.findByText('29th')).toBeInTheDocument()
+  })
+
+  it('re-fetches summary when closingDay changes', async () => {
+    const summary = {
+      period: new BillingPeriod(7, 2025),
+      totalDue: 500,
+      installmentCount: 3,
+    }
+    const service = createMockService(summary)
+    const { rerender } = render(<Dashboard dashboardService={service} closingDay={15} dueDay={29} />)
+
+    await screen.findByText('$500.00')
+    expect(service.getCurrentPeriodSummary).toHaveBeenCalledTimes(1)
+
+    rerender(<Dashboard dashboardService={service} closingDay={20} dueDay={29} />)
+
+    await waitFor(() => {
+      expect(service.getCurrentPeriodSummary).toHaveBeenCalledTimes(2)
+    })
   })
 })

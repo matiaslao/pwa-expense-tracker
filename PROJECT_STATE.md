@@ -20,8 +20,6 @@ Completed:
 - TASK-012: End-to-End Integration
 - TASK-013: Documentation
 - TASK-014: Specifications updated for CR-001
-
-Pending:
 - CR-001-TASK-01: Domain — CardSettings type and ConfigRepository interface
 - CR-001-TASK-02: Infrastructure — ConfigRepository implementation and DB migration
 - CR-001-TASK-03: Application — PurchaseService (dueDay param, first installment auto-calc)
@@ -33,9 +31,14 @@ Pending:
 - CR-001-TASK-09: Tests — Service and repository tests
 - CR-001-TASK-10: Tests — Component tests
 - CR-001-TASK-11: Documentation — ADR updates and user guide
+- CR-002: Change request analysis complete
+- CR-002-TASK-00: Documentation — Specs and ADRs updated for CR-002
+
+Pending:
+- None
 
 Blockers:
 - None
 
 Next Action:
-Begin CR-001 implementation tasks
+Awaiting next change request
