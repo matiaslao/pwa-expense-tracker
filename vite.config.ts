@@ -17,8 +17,8 @@ export default defineConfig({
         background_color: '#ffffff',
         display: 'standalone',
         orientation: 'portrait',
-        scope: '/',
-        start_url: '/',
+        scope: '/pwa-expense-tracker/',
+        start_url: '/pwa-expense-tracker/',
         icons: [
           {
             src: '/favicon.svg',

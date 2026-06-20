@@ -33,12 +33,17 @@ Completed:
 - CR-001-TASK-11: Documentation — ADR updates and user guide
 - CR-002: Change request analysis complete
 - CR-002-TASK-00: Documentation — Specs and ADRs updated for CR-002
+- CR-003: iOS PWA readiness analysis complete
 
 Pending:
-- None
+- CR-003-TASK-01: Generate PNG icons (180×180, 152×152, 120×120, 192×192, 512×512)
+- CR-003-TASK-02: Update index.html — Apple touch icon & meta tags
+- CR-003-TASK-03: Update vite.config.ts — Manifest icons & background_color
+- CR-003-TASK-04: Verify build output & test on iPhone
+- CR-003-TASK-05: Add splash screen support (optional)
 
 Blockers:
 - None
 
 Next Action:
-Awaiting next change request
+Implement CR-003 task list
