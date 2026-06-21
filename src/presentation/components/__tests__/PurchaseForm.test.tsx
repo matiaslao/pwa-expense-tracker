@@ -18,19 +18,19 @@ describe('PurchaseForm', () => {
   it('renders all form fields', () => {
     render(<PurchaseForm service={createMockService()} />)
 
-    expect(screen.getByLabelText(/description/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/amount/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/installments/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/purchase date/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Descripción/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Monto/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Cuotas/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Fecha de Compra/i)).toBeInTheDocument()
     expect(screen.queryByLabelText(/first installment date/i)).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /create/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Crear/i })).toBeInTheDocument()
   })
 
   it('shows create button and title for new purchase', () => {
     render(<PurchaseForm service={createMockService()} />)
 
-    expect(screen.getByText('New Purchase')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /create/i })).toBeInTheDocument()
+    expect(screen.getByText('Nueva Compra')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Crear/i })).toBeInTheDocument()
   })
 
   it('shows update button and title for existing purchase', () => {
@@ -49,28 +49,28 @@ describe('PurchaseForm', () => {
 
     render(<PurchaseForm service={createMockService()} initialPurchase={purchase as any} />)
 
-    expect(screen.getByText('Edit Purchase')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /update/i })).toBeInTheDocument()
+    expect(screen.getByText('Editar Compra')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Actualizar/i })).toBeInTheDocument()
   })
 
   it('shows validation error for empty description', async () => {
     const user = userEvent.setup()
     render(<PurchaseForm service={createMockService()} />)
 
-    await user.click(screen.getByRole('button', { name: /create/i }))
+    await user.click(screen.getByRole('button', { name: /Crear/i }))
 
-    expect(screen.getByText('Description is required')).toBeInTheDocument()
+    expect(screen.getByText('La descripción es obligatoria')).toBeInTheDocument()
   })
 
   it('shows validation error for invalid amount', async () => {
     const user = userEvent.setup()
     render(<PurchaseForm service={createMockService()} />)
 
-    await user.type(screen.getByLabelText(/description/i), 'Test')
-    await user.type(screen.getByLabelText(/amount/i), '-10')
-    await user.click(screen.getByRole('button', { name: /create/i }))
+    await user.type(screen.getByLabelText(/Descripción/i), 'Test')
+    await user.type(screen.getByLabelText(/Monto/i), '-10')
+    await user.click(screen.getByRole('button', { name: /Crear/i }))
 
-    expect(screen.getByText('Amount must be a positive number')).toBeInTheDocument()
+    expect(screen.getByText('El monto debe ser un número positivo')).toBeInTheDocument()
   })
 
   it('calls createPurchase on valid submit', async () => {
@@ -80,13 +80,13 @@ describe('PurchaseForm', () => {
 
     render(<PurchaseForm service={service} onSuccess={onSuccess} />)
 
-    await user.type(screen.getByLabelText(/description/i), 'New purchase')
-    await user.type(screen.getByLabelText(/amount/i), '300')
-    await user.clear(screen.getByLabelText(/installments/i))
-    await user.type(screen.getByLabelText(/installments/i), '3')
-    await user.clear(screen.getByLabelText(/purchase date/i))
-    await user.type(screen.getByLabelText(/purchase date/i), '2025-06-10')
-    await user.click(screen.getByRole('button', { name: /create/i }))
+    await user.type(screen.getByLabelText(/Descripción/i), 'New purchase')
+    await user.type(screen.getByLabelText(/Monto/i), '300')
+    await user.clear(screen.getByLabelText(/Cuotas/i))
+    await user.type(screen.getByLabelText(/Cuotas/i), '3')
+    await user.clear(screen.getByLabelText(/Fecha de Compra/i))
+    await user.type(screen.getByLabelText(/Fecha de Compra/i), '2025-06-10')
+    await user.click(screen.getByRole('button', { name: /Crear/i }))
 
     await waitFor(() => {
       expect(service.createPurchase).toHaveBeenCalledTimes(1)
@@ -120,9 +120,9 @@ describe('PurchaseForm', () => {
       />
     )
 
-    await user.clear(screen.getByLabelText(/description/i))
-    await user.type(screen.getByLabelText(/description/i), 'Updated')
-    await user.click(screen.getByRole('button', { name: /update/i }))
+    await user.clear(screen.getByLabelText(/Descripción/i))
+    await user.type(screen.getByLabelText(/Descripción/i), 'Updated')
+    await user.click(screen.getByRole('button', { name: /Actualizar/i }))
 
     await waitFor(() => {
       expect(service.updatePurchase).toHaveBeenCalledWith('p1', expect.objectContaining({
@@ -138,7 +138,7 @@ describe('PurchaseForm', () => {
 
     render(<PurchaseForm service={createMockService()} onCancel={onCancel} />)
 
-    await user.click(screen.getByRole('button', { name: /cancel/i }))
+    await user.click(screen.getByRole('button', { name: /Cancelar/i }))
     expect(onCancel).toHaveBeenCalled()
   })
 
@@ -149,11 +149,11 @@ describe('PurchaseForm', () => {
 
     render(<PurchaseForm service={service} />)
 
-    await user.type(screen.getByLabelText(/description/i), 'Test')
-    await user.type(screen.getByLabelText(/amount/i), '100')
-    await user.clear(screen.getByLabelText(/purchase date/i))
-    await user.type(screen.getByLabelText(/purchase date/i), '2025-06-10')
-    await user.click(screen.getByRole('button', { name: /create/i }))
+    await user.type(screen.getByLabelText(/Descripción/i), 'Test')
+    await user.type(screen.getByLabelText(/Monto/i), '100')
+    await user.clear(screen.getByLabelText(/Fecha de Compra/i))
+    await user.type(screen.getByLabelText(/Fecha de Compra/i), '2025-06-10')
+    await user.click(screen.getByRole('button', { name: /Crear/i }))
 
     await waitFor(() => {
       expect(screen.getByText('Service error')).toBeInTheDocument()

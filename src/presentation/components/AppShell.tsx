@@ -11,6 +11,7 @@ import DateRangeIcon from '@mui/icons-material/DateRange'
 import SettingsIcon from '@mui/icons-material/Settings'
 import AddIcon from '@mui/icons-material/Add'
 import type { ReactNode } from 'react'
+import { Strings } from '../strings'
 
 interface AppShellProps {
   children: ReactNode
@@ -21,10 +22,10 @@ export function AppShell({ children }: AppShellProps) {
   const location = useLocation()
 
   const tabs = [
-    { label: 'Dashboard', icon: <DashboardIcon />, path: '/' },
-    { label: 'Purchases', icon: <ShoppingCartIcon />, path: '/purchases' },
-    { label: 'Future', icon: <DateRangeIcon />, path: '/future' },
-    { label: 'Settings', icon: <SettingsIcon />, path: '/settings' },
+    { label: Strings.NAV_DASHBOARD, icon: <DashboardIcon />, path: '/' },
+    { label: Strings.NAV_PURCHASES, icon: <ShoppingCartIcon />, path: '/purchases' },
+    { label: Strings.NAV_FUTURE, icon: <DateRangeIcon />, path: '/future' },
+    { label: Strings.NAV_SETTINGS, icon: <SettingsIcon />, path: '/settings' },
   ]
 
   const currentTab = tabs.findIndex((t) => t.path === location.pathname)
@@ -46,7 +47,13 @@ export function AppShell({ children }: AppShellProps) {
       <BottomNavigation
         value={currentTab === -1 ? 0 : currentTab}
         onChange={(_, index) => navigate(tabs[index].path)}
-        sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }}
+        sx={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          pb: 'env(safe-area-inset-bottom, 0px)',
+        }}
       >
         {tabs.map((tab) => (
           <BottomNavigationAction key={tab.path} label={tab.label} icon={tab.icon} />

@@ -122,9 +122,21 @@ export class DashboardService {
 
   async getActivePurchases(): Promise<Purchase[]> {
     const purchases = await this.repository.findAll()
-    return purchases.filter(p => {
-      const remaining = p.getRemainingInstallments(0)
-      return remaining.length > 0
-    })
+    await this.archiveCompletedPurchases(purchases)
+    return purchases
+      .filter(p => {
+        const remaining = p.getRemainingInstallments(0)
+        return remaining.length > 0 && !p.isArchived
+      })
+      .sort((a, b) => b.purchaseDate.getTime() - a.purchaseDate.getTime())
+  }
+
+  private async archiveCompletedPurchases(purchases: Purchase[]): Promise<void> {
+    for (const purchase of purchases) {
+      if (!purchase.isArchived && purchase.isComplete()) {
+        purchase.markArchived()
+        await this.repository.save(purchase)
+      }
+    }
   }
 }

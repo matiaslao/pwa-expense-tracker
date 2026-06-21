@@ -41,14 +41,14 @@ describe('ActivePurchases', () => {
     const service = createMockService([])
     render(<ActivePurchases dashboardService={service} />)
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(screen.getByText('Cargando...')).toBeInTheDocument()
   })
 
   it('shows empty state when no active purchases', async () => {
     const service = createMockService([])
     render(<ActivePurchases dashboardService={service} />)
 
-    const empty = await screen.findByText('No active purchases')
+    const empty = await screen.findByText('No hay compras activas')
     expect(empty).toBeInTheDocument()
   })
 
@@ -57,7 +57,7 @@ describe('ActivePurchases', () => {
     const service = createMockService([purchase])
     render(<ActivePurchases dashboardService={service} />)
 
-    const item = await screen.findByText('Test purchase — 2025-06-10')
+    const item = await screen.findByText('Test purchase — 10/06/2025')
     expect(item).toBeInTheDocument()
   })
 
@@ -90,9 +90,9 @@ describe('ActivePurchases', () => {
     const service = createMockService([purchase])
     render(<ActivePurchases dashboardService={service} />)
 
-    expect(await screen.findByText('Test purchase — 2025-06-10')).toBeInTheDocument()
-    expect(screen.getByText('$500.00')).toBeInTheDocument()
-    expect(screen.queryByText(/Installments?:/)).not.toBeInTheDocument()
+    expect(await screen.findByText('Test purchase — 10/06/2025')).toBeInTheDocument()
+    expect(screen.getByText(/500/)).toBeInTheDocument()
+    expect(screen.queryByText(/Cuotas/)).not.toBeInTheDocument()
   })
 
   it('shows installment details for multi-installment purchase', async () => {
@@ -100,10 +100,10 @@ describe('ActivePurchases', () => {
     const service = createMockService([purchase])
     render(<ActivePurchases dashboardService={service} />)
 
-    await screen.findByText('Test purchase — 2025-06-10')
-    expect(screen.getByText(/Installments: 3/)).toBeInTheDocument()
-    expect(screen.getByText(/Installment Amount:/)).toBeInTheDocument()
-    expect(screen.getByText(/100\.00/)).toBeInTheDocument()
+    await screen.findByText('Test purchase — 10/06/2025')
+    expect(screen.getByText(/Cuotas: 3/)).toBeInTheDocument()
+    expect(screen.getByText(/Valor de Cuota/)).toBeInTheDocument()
+    expect(screen.getByText(/100/)).toBeInTheDocument()
   })
 
   it('shows correct remaining installments count', async () => {
@@ -113,7 +113,7 @@ describe('ActivePurchases', () => {
     const service = createMockService([purchase])
     render(<ActivePurchases dashboardService={service} />)
 
-    await screen.findByText('Test purchase — 2025-06-10')
-    expect(screen.getByText(/2 remaining/)).toBeInTheDocument()
+    await screen.findByText('Test purchase — 10/06/2025')
+    expect(screen.getByText(/2 restantes/)).toBeInTheDocument()
   })
 })

@@ -10,6 +10,7 @@ export interface PurchaseRecord {
   firstInstallmentDate: Date
   billingPeriodMonth: number
   billingPeriodYear: number
+  isArchived?: boolean
 }
 
 export interface SettingsRecord {

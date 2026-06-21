@@ -8,6 +8,7 @@ import {
 } from '@mui/material'
 import type { ConfigRepository } from '../../domain/repositories/ConfigRepository'
 import type { CardSettings } from '../../domain/types/CardSettings'
+import { Strings } from '../strings'
 
 interface SettingsProps {
   configRepository: ConfigRepository
@@ -50,11 +51,11 @@ export function Settings({ configRepository, onSave, onCancel }: SettingsProps) 
     const dueNum = parseInt(dueDay, 10)
 
     if (isNaN(closingNum) || closingNum < 1 || closingNum > 31) {
-      setError('Closing day must be between 1 and 31')
+      setError(Strings.CLOSING_DAY_ERROR)
       return
     }
     if (isNaN(dueNum) || dueNum < 1 || dueNum > 31) {
-      setError('Due day must be between 1 and 31')
+      setError(Strings.DUE_DAY_ERROR)
       return
     }
 
@@ -63,24 +64,24 @@ export function Settings({ configRepository, onSave, onCancel }: SettingsProps) 
       await configRepository.saveSettings({ closingDay: closingNum, dueDay: dueNum })
       onSave?.({ closingDay: closingNum, dueDay: dueNum })
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      setError(err instanceof Error ? err.message : Strings.ERROR_OCCURRED)
     } finally {
       setSaving(false)
     }
   }
 
   if (loading) {
-    return <Typography sx={{ p: 2, textAlign: 'center' }}>Loading...</Typography>
+    return <Typography sx={{ p: 2, textAlign: 'center' }}>{Strings.LOADING}</Typography>
   }
 
   return (
     <Paper sx={{ p: 3, mx: 2, my: 2 }}>
       <Typography variant="h6" sx={{ mb: 2 }}>
-        Settings
+        {Strings.SETTINGS_TITLE}
       </Typography>
       <Box component="form" onSubmit={handleSubmit} noValidate sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <TextField
-          label="Closing Day"
+          label={Strings.CLOSING_DAY_LABEL}
           type="number"
           value={closingDay}
           onChange={(e) => handleClosingDayChange(e.target.value)}
@@ -88,10 +89,10 @@ export function Settings({ configRepository, onSave, onCancel }: SettingsProps) 
           fullWidth
           size="small"
           inputProps={{ min: 1, max: 31 }}
-          helperText="Day of the month your statement closes"
+          helperText={Strings.CLOSING_DAY_HELPER}
         />
         <TextField
-          label="Due Date"
+          label={Strings.DUE_DATE_LABEL}
           type="number"
           value={dueDay}
           onChange={(e) => setDueDay(e.target.value)}
@@ -99,7 +100,7 @@ export function Settings({ configRepository, onSave, onCancel }: SettingsProps) 
           fullWidth
           size="small"
           inputProps={{ min: 1, max: 31 }}
-          helperText="Day of the month your payment is due"
+          helperText={Strings.DUE_DATE_HELPER}
         />
         {error && (
           <Typography color="error" variant="body2">
@@ -109,11 +110,11 @@ export function Settings({ configRepository, onSave, onCancel }: SettingsProps) 
         <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
           {onCancel && (
             <Button onClick={onCancel} disabled={saving}>
-              Cancel
+              {Strings.CANCEL}
             </Button>
           )}
           <Button type="submit" variant="contained" disabled={saving}>
-            {saving ? 'Saving...' : 'Save'}
+            {saving ? Strings.SAVING : Strings.SAVE}
           </Button>
         </Box>
       </Box>

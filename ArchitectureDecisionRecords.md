@@ -11,6 +11,8 @@ Installments generated dynamically (never persisted)
 
 *Updated 2026-06-18: firstInstallmentDate is now auto-calculated from billing period + dueDay at purchase creation, rather than user-provided.*
 
+*Updated 2026-06-20: Dynamic generation now triggers archiving when remaining installments reach 0. See ADR-016.*
+
 ## ADR-004
 Single-card MVP
 
@@ -66,3 +68,25 @@ Previous Period Summary on Dashboard
 *Decision: Add a `getPreviousPeriodSummary()` method to DashboardService that computes the previous billing period, aggregates purchases assigned to it, and returns totalDue (first-installment sum), purchaseCount, closingDate, and dueDate. The existing `CurrentPeriodSummary` renames `installmentCount` to `purchaseCount` (the field always stored purchase count — the name was misleading). The BillingPeriod domain object gains a `previous()` method for reusable period arithmetic. The Dashboard component displays both panels concurrently using Promise.all.*
 
 *Rationale: All required data already exists in the Purchase entity and BillingPeriod value object. Changes are additive and require no schema migrations or entity changes. Existing current period logic and tests require only a rename from `installmentCount` to `purchaseCount`.*
+
+*Updated 2026-06-20: Period summaries include archived purchases (see ADR-016). The recompute approach remains viable because CR-006.3 chose soft-delete over hard-delete.*
+
+## ADR-016
+Automatic Purchase Archiving
+
+*Context: Completed purchases (remaining installments = 0) must be removed from Active Purchases but their data must remain available for Current Period and Previous Period summaries. Physical deletion would corrupt period summaries computed via the recompute approach (ADR-015).*
+
+*Decision: Add an `isArchived: boolean` field to the Purchase entity (soft delete). Archived purchases are excluded from `getActivePurchases()` queries but included in billing period aggregate queries. Archiving is triggered when `getRemainingInstallments(0)` returns an empty array during `getActivePurchases()` fetch. No new IndexedDB table or snapshot infrastructure is required.*
+
+*Rationale: Minimal schema change (one boolean field), no new repositories or tables, preserves compatibility with ADR-015's recompute approach, all existing queries continue to work with minor filter adjustments.*
+
+## ADR-017
+Argentinian Spanish Localization
+
+*Context: The app targets Argentinian users. All UI text was in English; currency used US formatting ($500.00); dates used YYYY-MM-DD format.*
+
+*Decision: Localize all user-visible strings to es-AR. Use `Intl.NumberFormat` with `'es-AR'` locale for currency. Use `Intl.DateTimeFormat` with `'es-AR'` (DD/MM/YYYY) for dates. For UI strings, use a simple key-value map (`strings.ts`) rather than a full i18n framework — the app only supports one locale and has no plans for multi-language support.*
+
+*Rationale: Built-in Intl APIs cover formatting. A lightweight string map avoids i18n framework dependency. Single-locale constraint keeps complexity low. All formatting changes are in the presentation layer — no business logic changes.*
+
+*Updated 2026-06-20: Period summaries include archived purchases (see ADR-016). The recompute approach remains viable because CR-006.3 chose soft-delete over hard-delete.*

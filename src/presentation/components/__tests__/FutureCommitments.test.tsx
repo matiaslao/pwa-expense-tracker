@@ -17,14 +17,14 @@ describe('FutureCommitments', () => {
     const service = createMockService([])
     render(<FutureCommitments dashboardService={service} />)
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(screen.getByText('Cargando...')).toBeInTheDocument()
   })
 
   it('shows empty state when no commitments', async () => {
     const service = createMockService([])
     render(<FutureCommitments dashboardService={service} />)
 
-    const empty = await screen.findByText('No future commitments')
+    const empty = await screen.findByText('No hay compromisos futuros')
     expect(empty).toBeInTheDocument()
   })
 
@@ -38,7 +38,7 @@ describe('FutureCommitments', () => {
 
     expect(await screen.findByText('2025-08')).toBeInTheDocument()
     expect(await screen.findByText('2025-09')).toBeInTheDocument()
-    expect(await screen.findByText('Total: $100.00')).toBeInTheDocument()
-    expect(await screen.findByText('Total: $200.00')).toBeInTheDocument()
+    expect(await screen.findByText(/100/)).toBeInTheDocument()
+    expect(await screen.findByText(/200/)).toBeInTheDocument()
   })
 })

@@ -56,12 +56,28 @@ Completed:
 - CR-005-TASK-07: Add ADR-015 to ArchitectureDecisionRecords.md
 - CR-005-TASK-08: Verify build and test suite
 - CR-006: Change request analysis complete
+- CR-006-TASK-01: Bottom Navigation Safe Area Padding
+- CR-006-TASK-02: Active Purchases Descending Sort
+- CR-006-TASK-03: Add `isArchived` Field to Purchase Entity
+- CR-006-TASK-04: Implement Archiving Logic
+- CR-006-TASK-05: Update Active Purchases Query to Exclude Archived
+- CR-006-TASK-06: Replace Application Icon Assets
+- CR-006-TASK-07: Create Localization String Map
+- CR-006-TASK-08: Apply Localized Strings Across All Components
+- CR-006-TASK-09: Create Currency Formatting Utility
+- CR-006-TASK-10: Create Date Formatting Utility
+- CR-006-TASK-11: Replace Inline Formatting with Shared Utilities
+- CR-006-TASK-12: Update ProductSpecification.md
+- CR-006-TASK-13: Update ArchitectureDecisionRecords.md
+- CR-006-TASK-14: Update All Test Assertions for Spanish Text
+- CR-006-TASK-15: Add Tests for Archiving and Sort
+- CR-006-TASK-16: Full Verification
 
 Pending:
-- CR-006 implementation tasks
+- None
 
 Blockers:
 - None
 
 Next Action:
-Begin CR-006 implementation
+CR-006 complete — awaiting next change request

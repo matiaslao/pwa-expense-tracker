@@ -8,6 +8,7 @@ import {
 } from '@mui/material'
 import type { PurchaseService } from '../../application/services/PurchaseService'
 import type { Purchase } from '../../domain/entities/Purchase'
+import { Strings } from '../strings'
 
 interface PurchaseFormProps {
   service: PurchaseService
@@ -35,19 +36,19 @@ export function PurchaseForm({ service, initialPurchase, onSuccess, onCancel }: 
     const purchaseDateObj = new Date(purchaseDate + 'T12:00:00')
 
     if (!description.trim()) {
-      setError('Description is required')
+      setError(Strings.DESCRIPTION_REQUIRED)
       return
     }
     if (isNaN(amountNum) || amountNum <= 0) {
-      setError('Amount must be a positive number')
+      setError(Strings.AMOUNT_POSITIVE)
       return
     }
     if (isNaN(installmentsNum) || installmentsNum < 1) {
-      setError('Installments must be at least 1')
+      setError(Strings.INSTALLMENTS_MIN)
       return
     }
     if (isNaN(purchaseDateObj.getTime())) {
-      setError('Purchase date is required')
+      setError(Strings.PURCHASE_DATE_REQUIRED)
       return
     }
 
@@ -70,7 +71,7 @@ export function PurchaseForm({ service, initialPurchase, onSuccess, onCancel }: 
       }
       onSuccess?.()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      setError(err instanceof Error ? err.message : Strings.ERROR_OCCURRED)
     } finally {
       setSubmitting(false)
     }
@@ -79,11 +80,11 @@ export function PurchaseForm({ service, initialPurchase, onSuccess, onCancel }: 
   return (
     <Paper sx={{ p: 3, mx: 2, my: 2 }}>
       <Typography variant="h6" sx={{ mb: 2 }}>
-        {initialPurchase ? 'Edit Purchase' : 'New Purchase'}
+        {initialPurchase ? Strings.PURCHASE_FORM_TITLE_EDIT : Strings.PURCHASE_FORM_TITLE_NEW}
       </Typography>
       <Box component="form" onSubmit={handleSubmit} noValidate sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <TextField
-          label="Description"
+          label={Strings.DESCRIPTION_LABEL}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           required
@@ -91,7 +92,7 @@ export function PurchaseForm({ service, initialPurchase, onSuccess, onCancel }: 
           size="small"
         />
         <TextField
-          label="Amount (ARS)"
+          label={Strings.AMOUNT_LABEL}
           type="number"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
@@ -101,7 +102,7 @@ export function PurchaseForm({ service, initialPurchase, onSuccess, onCancel }: 
           inputProps={{ min: 0, step: 0.01 }}
         />
         <TextField
-          label="Installments"
+          label={Strings.INSTALLMENTS_LABEL}
           type="number"
           value={installments}
           onChange={(e) => setInstallments(e.target.value)}
@@ -111,7 +112,7 @@ export function PurchaseForm({ service, initialPurchase, onSuccess, onCancel }: 
           inputProps={{ min: 1 }}
         />
         <TextField
-          label="Purchase Date"
+          label={Strings.PURCHASE_DATE_LABEL}
           type="date"
           value={purchaseDate}
           onChange={(e) => setPurchaseDate(e.target.value)}
@@ -128,11 +129,11 @@ export function PurchaseForm({ service, initialPurchase, onSuccess, onCancel }: 
         <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
           {onCancel && (
             <Button onClick={onCancel} disabled={submitting}>
-              Cancel
+              {Strings.CANCEL}
             </Button>
           )}
           <Button type="submit" variant="contained" disabled={submitting}>
-            {submitting ? 'Saving...' : initialPurchase ? 'Update' : 'Create'}
+            {submitting ? Strings.SAVING : initialPurchase ? Strings.UPDATE : Strings.CREATE}
           </Button>
         </Box>
       </Box>

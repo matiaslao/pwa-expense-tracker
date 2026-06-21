@@ -9,7 +9,8 @@ Develop a mobile-first Progressive Web Application (PWA) for tracking credit car
 
 ### Included
 - Single credit card
-- ARS currency only
+- ARS currency only, formatted for es-AR locale
+- Argentinian Spanish (es-AR) localization
 - Create/Edit/Delete purchases
 - Equal installments without interest
 - Automatic billing period assignment
@@ -48,7 +49,13 @@ Develop a mobile-first Progressive Web Application (PWA) for tracking credit car
 - Installment value = amount / installments
 - Purchases after closing day belong to next statement
 - Installments are generated dynamically
-- Active purchase = remaining installments > 0
+- Active purchase = remaining installments > 0 and not archived
+- Active purchases are sorted by purchase date in descending order (newest first)
+- Completed purchases (remaining installments = 0) are automatically archived
+- Archived purchases are excluded from Active Purchases but included in billing period summaries
+- Currency formatted using es-AR conventions: ARS 125.500,75
+- Dates formatted as DD/MM/YYYY
+- All user-visible text in Argentinian Spanish (es-AR)
 - Closing day is user-configurable (1–31), persisted in IndexedDB
 - Due day is user-configurable (1–31), defaults to closing day + 14 using calendar arithmetic (handles month boundaries via JavaScript Date)
 - Closing day and due day can be changed at any time

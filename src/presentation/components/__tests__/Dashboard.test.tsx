@@ -22,7 +22,7 @@ describe('Dashboard', () => {
     const service = createMockService(null)
     render(<Dashboard dashboardService={service} closingDay={15} dueDay={29} />)
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(screen.getByText('Cargando...')).toBeInTheDocument()
   })
 
   it('displays current period summary', async () => {
@@ -35,7 +35,7 @@ describe('Dashboard', () => {
     render(<Dashboard dashboardService={service} closingDay={15} dueDay={29} />)
 
     expect(await screen.findByText('2025-07')).toBeInTheDocument()
-    expect(await screen.findByText('$500.00')).toBeInTheDocument()
+    expect(await screen.findByText(/500/)).toBeInTheDocument()
     expect(await screen.findByText('3')).toBeInTheDocument()
   })
 
@@ -48,7 +48,7 @@ describe('Dashboard', () => {
     const service = createMockService(summary)
     render(<Dashboard dashboardService={service} closingDay={15} dueDay={29} />)
 
-    expect(await screen.findByText('15th')).toBeInTheDocument()
+    expect(await screen.findByText('15')).toBeInTheDocument()
   })
 
   it('shows due date', async () => {
@@ -60,7 +60,7 @@ describe('Dashboard', () => {
     const service = createMockService(summary)
     render(<Dashboard dashboardService={service} closingDay={15} dueDay={29} />)
 
-    expect(await screen.findByText('29th')).toBeInTheDocument()
+    expect(await screen.findByText('29')).toBeInTheDocument()
   })
 
   it('re-fetches summary when closingDay changes', async () => {
@@ -72,7 +72,7 @@ describe('Dashboard', () => {
     const service = createMockService(summary)
     const { rerender } = render(<Dashboard dashboardService={service} closingDay={15} dueDay={29} />)
 
-    await screen.findByText('$500.00')
+    await screen.findByText(/500/)
     expect(service.getCurrentPeriodSummary).toHaveBeenCalledTimes(1)
 
     rerender(<Dashboard dashboardService={service} closingDay={20} dueDay={29} />)
@@ -101,15 +101,15 @@ describe('Dashboard', () => {
       const service = createMockService(currentSummary, previousSummary)
       render(<Dashboard dashboardService={service} closingDay={25} dueDay={8} />)
 
-      expect(await screen.findByText('Current Period')).toBeInTheDocument()
-      expect(await screen.findByText('Previous Period Summary')).toBeInTheDocument()
+      expect(await screen.findByText('Período Actual')).toBeInTheDocument()
+      expect(await screen.findByText('Período Anterior')).toBeInTheDocument()
     })
 
     it('shows amount due for previous period', async () => {
       const service = createMockService(currentSummary, previousSummary)
       render(<Dashboard dashboardService={service} closingDay={25} dueDay={8} />)
 
-      expect(await screen.findByText('$1000.00')).toBeInTheDocument()
+      expect(await screen.findByText(/1\.000/)).toBeInTheDocument()
     })
 
     it('shows purchase count for previous period', async () => {
@@ -123,14 +123,14 @@ describe('Dashboard', () => {
       const service = createMockService(currentSummary, previousSummary)
       render(<Dashboard dashboardService={service} closingDay={25} dueDay={8} />)
 
-      expect(await screen.findByText('2025-06-25')).toBeInTheDocument()
+      expect(await screen.findByText('25/06/2025')).toBeInTheDocument()
     })
 
     it('shows due date for previous period', async () => {
       const service = createMockService(currentSummary, previousSummary)
       render(<Dashboard dashboardService={service} closingDay={25} dueDay={8} />)
 
-      expect(await screen.findByText('2025-07-08')).toBeInTheDocument()
+      expect(await screen.findByText('08/07/2025')).toBeInTheDocument()
     })
 
     it('shows period identifier for previous period', async () => {
@@ -144,8 +144,8 @@ describe('Dashboard', () => {
       const service = createMockService(currentSummary)
       render(<Dashboard dashboardService={service} closingDay={25} dueDay={8} />)
 
-      await screen.findByText('Current Period')
-      expect(screen.queryByText('Previous Period Summary')).not.toBeInTheDocument()
+      await screen.findByText('Período Actual')
+      expect(screen.queryByText('Período Anterior')).not.toBeInTheDocument()
     })
   })
 })

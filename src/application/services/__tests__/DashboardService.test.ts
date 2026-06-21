@@ -202,5 +202,83 @@ describe('DashboardService', () => {
 
       expect(active).toHaveLength(2)
     })
+
+    it('excludes archived purchases', async () => {
+      const repo = createMockRepository()
+      vi.mocked(repo.findAll).mockResolvedValue([
+        makePurchase({ id: 'p1', amount: 300, installments: 3, isArchived: true }),
+        makePurchase({ id: 'p2', amount: 300, installments: 3 }),
+      ])
+
+      const service = new DashboardService(repo, 15, 29)
+      const active = await service.getActivePurchases()
+
+      expect(active).toHaveLength(1)
+      expect(active[0].id).toBe('p2')
+    })
+
+    it('sorts by purchaseDate descending', async () => {
+      const repo = createMockRepository()
+      vi.mocked(repo.findAll).mockResolvedValue([
+        makePurchase({ id: 'p1', purchaseDate: date(2025, 6, 10) }),
+        makePurchase({ id: 'p2', purchaseDate: date(2025, 7, 15) }),
+        makePurchase({ id: 'p3', purchaseDate: date(2025, 5, 1) }),
+      ])
+
+      const service = new DashboardService(repo, 15, 29)
+      const active = await service.getActivePurchases()
+
+      expect(active).toHaveLength(3)
+      expect(active[0].id).toBe('p2')
+      expect(active[1].id).toBe('p1')
+      expect(active[2].id).toBe('p3')
+    })
+
+    it('archives completed purchases automatically', async () => {
+      const repo = createMockRepository()
+      const completePurchase = makePurchase({
+        id: 'p1',
+        amount: 100,
+        installments: 1,
+        firstInstallmentDate: date(2024, 1, 15),
+      })
+      vi.mocked(repo.findAll).mockResolvedValue([completePurchase])
+
+      const service = new DashboardService(repo, 15, 29)
+      await service.getActivePurchases()
+
+      expect(repo.save).toHaveBeenCalled()
+      expect(completePurchase.isArchived).toBe(true)
+    })
+  })
+
+  describe('period summaries include archived purchases', () => {
+    it('current period summary includes archived purchases', async () => {
+      const repo = createMockRepository()
+      vi.mocked(repo.findAll).mockResolvedValue([
+        makePurchase({ id: 'p1', amount: 300, installments: 3, billingPeriod: new BillingPeriod(7, 2025), isArchived: true }),
+        makePurchase({ id: 'p2', amount: 300, installments: 3, billingPeriod: new BillingPeriod(7, 2025) }),
+      ])
+
+      const service = new DashboardService(repo, 15, 29)
+      const summary = await service.getCurrentPeriodSummary()
+
+      expect(summary.purchaseCount).toBe(2)
+      expect(summary.totalDue).toBe(200)
+    })
+
+    it('previous period summary includes archived purchases', async () => {
+      const repo = createMockRepository()
+      vi.mocked(repo.findAll).mockResolvedValue([
+        makePurchase({ id: 'p1', amount: 300, installments: 3, billingPeriod: new BillingPeriod(6, 2025), isArchived: true }),
+        makePurchase({ id: 'p2', amount: 300, installments: 3, billingPeriod: new BillingPeriod(6, 2025) }),
+      ])
+
+      const service = new DashboardService(repo, 15, 29)
+      const summary = await service.getPreviousPeriodSummary()
+
+      expect(summary.purchaseCount).toBe(2)
+      expect(summary.totalDue).toBe(200)
+    })
   })
 })

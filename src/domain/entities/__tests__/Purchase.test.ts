@@ -181,4 +181,42 @@ describe('Purchase', () => {
       expect(remaining).toHaveLength(0)
     })
   })
+
+  describe('archiving', () => {
+    it('defaults isArchived to false', () => {
+      const purchase = new Purchase(makeValidProps())
+      expect(purchase.isArchived).toBe(false)
+    })
+
+    it('accepts isArchived via props', () => {
+      const purchase = new Purchase(makeValidProps({ isArchived: true }))
+      expect(purchase.isArchived).toBe(true)
+    })
+
+    it('markArchived sets isArchived to true', () => {
+      const purchase = new Purchase(makeValidProps())
+      purchase.markArchived()
+      expect(purchase.isArchived).toBe(true)
+    })
+  })
+
+  describe('isComplete', () => {
+    it('returns true when last installment due date is in the past', () => {
+      const purchase = new Purchase(makeValidProps({
+        amount: 300,
+        installments: 1,
+        firstInstallmentDate: date(2024, 1, 15),
+      }))
+      expect(purchase.isComplete()).toBe(true)
+    })
+
+    it('returns false when last installment due date is in the future', () => {
+      const purchase = new Purchase(makeValidProps({
+        amount: 300,
+        installments: 3,
+        firstInstallmentDate: date(2099, 1, 15),
+      }))
+      expect(purchase.isComplete()).toBe(false)
+    })
+  })
 })

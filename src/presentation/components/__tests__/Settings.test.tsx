@@ -19,7 +19,7 @@ describe('Settings', () => {
     const repo = createMockRepo()
     render(<Settings configRepository={repo} />)
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(screen.getByText('Cargando...')).toBeInTheDocument()
   })
 
   it('renders fields with current settings', async () => {
@@ -35,11 +35,11 @@ describe('Settings', () => {
     const user = userEvent.setup()
     render(<Settings configRepository={repo} />)
 
-    const closingInput = await screen.findByLabelText(/closing day/i)
+    const closingInput = await screen.findByLabelText(/Día de Cierre/i)
     await user.clear(closingInput)
     await user.type(closingInput, '10')
 
-    const dueInput = screen.getByLabelText(/due date/i)
+    const dueInput = screen.getByLabelText(/Fecha de Vencimiento/i)
     expect(dueInput).toHaveValue(24)
   })
 
@@ -51,11 +51,11 @@ describe('Settings', () => {
     const user = userEvent.setup()
     render(<Settings configRepository={repo} />)
 
-    const closingInput = await screen.findByLabelText(/closing day/i)
+    const closingInput = await screen.findByLabelText(/Día de Cierre/i)
     await user.clear(closingInput)
     await user.type(closingInput, '20')
 
-    const dueInput = screen.getByLabelText(/due date/i)
+    const dueInput = screen.getByLabelText(/Fecha de Vencimiento/i)
     expect(dueInput).toHaveValue(4)
   })
 
@@ -67,11 +67,11 @@ describe('Settings', () => {
     const user = userEvent.setup()
     render(<Settings configRepository={repo} />)
 
-    const closingInput = await screen.findByLabelText(/closing day/i)
+    const closingInput = await screen.findByLabelText(/Día de Cierre/i)
     await user.clear(closingInput)
     await user.type(closingInput, '5')
 
-    const dueInput = screen.getByLabelText(/due date/i)
+    const dueInput = screen.getByLabelText(/Fecha de Vencimiento/i)
     expect(dueInput).toHaveValue(19)
   })
 
@@ -82,7 +82,7 @@ describe('Settings', () => {
     render(<Settings configRepository={repo} onSave={onSave} />)
 
     await screen.findByDisplayValue('15')
-    await user.click(screen.getByRole('button', { name: /save/i }))
+    await user.click(screen.getByRole('button', { name: /guardar/i }))
 
     await waitFor(() => {
       expect(repo.saveSettings).toHaveBeenCalledWith({ closingDay: 15, dueDay: 29 })
@@ -96,12 +96,12 @@ describe('Settings', () => {
     render(<Settings configRepository={repo} />)
 
     await screen.findByDisplayValue('15')
-    const closingInput = screen.getByLabelText(/closing day/i)
+    const closingInput = screen.getByLabelText(/Día de Cierre/i)
     await user.clear(closingInput)
     await user.type(closingInput, '0')
-    await user.click(screen.getByRole('button', { name: /save/i }))
+    await user.click(screen.getByRole('button', { name: /guardar/i }))
 
-    expect(await screen.findByText('Closing day must be between 1 and 31')).toBeInTheDocument()
+    expect(await screen.findByText('El día de cierre debe ser entre 1 y 31')).toBeInTheDocument()
   })
 
   it('calls onCancel when cancel button is clicked', async () => {
@@ -111,7 +111,7 @@ describe('Settings', () => {
     render(<Settings configRepository={repo} onCancel={onCancel} />)
 
     await screen.findByDisplayValue('15')
-    await user.click(screen.getByRole('button', { name: /cancel/i }))
+    await user.click(screen.getByRole('button', { name: /cancelar/i }))
 
     expect(onCancel).toHaveBeenCalled()
   })
