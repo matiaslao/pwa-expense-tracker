@@ -6,9 +6,17 @@ import { calculateBillingPeriod } from '../../domain/services/BillingPeriodCalcu
 export interface CurrentPeriodSummary {
   period: BillingPeriod
   totalDue: number
-  installmentCount: number
+  purchaseCount: number
   closingDay: number
   dueDay: number
+}
+
+export interface PreviousPeriodSummary {
+  period: BillingPeriod
+  totalDue: number
+  purchaseCount: number
+  closingDate: Date
+  dueDate: Date
 }
 
 export interface FutureCommitment {
@@ -44,9 +52,36 @@ export class DashboardService {
     return {
       period: currentPeriod,
       totalDue,
-      installmentCount: inPeriod.length,
+      purchaseCount: inPeriod.length,
       closingDay: this.closingDay,
       dueDay: this.dueDay,
+    }
+  }
+
+  async getPreviousPeriodSummary(): Promise<PreviousPeriodSummary> {
+    const now = new Date()
+    const currentPeriod = calculateBillingPeriod(this.closingDay, now)
+    const previousPeriod = currentPeriod.previous()
+    const purchases = await this.repository.findAll()
+    const inPeriod = purchases.filter(p => p.billingPeriod.equals(previousPeriod))
+
+    let totalDue = 0
+    for (const purchase of inPeriod) {
+      const installments = purchase.generateInstallments()
+      if (installments.length > 0) {
+        totalDue += installments[0].amount
+      }
+    }
+
+    const closingDate = new Date(previousPeriod.year, previousPeriod.month - 1, this.closingDay)
+    const dueDate = new Date(previousPeriod.year, previousPeriod.month, this.dueDay)
+
+    return {
+      period: previousPeriod,
+      totalDue,
+      purchaseCount: inPeriod.length,
+      closingDate,
+      dueDate,
     }
   }
 

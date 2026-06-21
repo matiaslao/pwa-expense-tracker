@@ -18,13 +18,25 @@ The first installment date is automatically calculated based on your card's stat
 
 ## View Dashboard
 
-The Dashboard shows the current billing period summary:
+The Dashboard shows two panels: the current billing period and a summary of the most recently closed period.
 
-- **Period** — The billing period (e.g., `2026-06`)
-- **Closing day** — Your configured statement closing day (e.g., 15th)
-- **Due date** — Your configured payment due date (e.g., 29th)
+### Current Period
+
+- **Period** — The billing period (e.g., `2026-07`)
+- **Closing day** — Your configured statement closing day (e.g., 25th)
+- **Due date** — Your configured payment due date (e.g., 8th)
 - **Total due** — Sum of first installments for purchases in this period
-- **Installments** — Number of first-installment purchases in this period
+- **Purchases** — Number of purchases in this period
+
+### Previous Period Summary
+
+- **Period** — The most recently closed billing period (e.g., `2026-06`)
+- **Closing date** — The actual closing date of that period (e.g., `2026-06-25`)
+- **Due date** — The actual due date for payment (e.g., `2026-07-08`)
+- **Amount due** — Total amount due for that closed period
+- **Purchases** — Number of purchases in that period
+
+The Previous Period Summary remains visible even after the due date has passed, so you can always reference past statements.
 
 Closing day and due date are configurable from the **Settings** screen.
 
@@ -70,7 +82,7 @@ Changes apply to new purchases only. Existing purchases keep their original bill
 
 | Tab | Path | Description |
 |-----|------|-------------|
-| Dashboard | `/` | Current period summary |
+| Dashboard | `/` | Current period summary + previous period summary |
 | Purchases | `/purchases` | All purchases (edit/delete) |
 | Future | `/future` | Future installment commitments |
 | Settings | `/settings` | Configure closing day and due date |

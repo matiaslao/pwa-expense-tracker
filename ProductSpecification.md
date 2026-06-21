@@ -15,7 +15,7 @@ Develop a mobile-first Progressive Web Application (PWA) for tracking credit car
 - Automatic billing period assignment
 - Configurable closing day (persisted)
 - Configurable due date (persisted, defaults to closing day + 14)
-- Dashboard with current period summary
+- Dashboard with current and previous period summary
 - Future commitments view
 - Active purchases view
 - Settings screen for card configuration

@@ -4,7 +4,7 @@ import {
   Typography,
   Box,
 } from '@mui/material'
-import type { DashboardService, CurrentPeriodSummary } from '../../application/services/DashboardService'
+import type { DashboardService, CurrentPeriodSummary, PreviousPeriodSummary } from '../../application/services/DashboardService'
 
 function ordinal(n: number): string {
   if (n > 3 && n < 21) return `${n}th`
@@ -16,6 +16,13 @@ function ordinal(n: number): string {
   }
 }
 
+function formatDate(d: Date): string {
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 interface DashboardProps {
   dashboardService: DashboardService
   closingDay: number
@@ -24,11 +31,16 @@ interface DashboardProps {
 
 export function Dashboard({ dashboardService, closingDay, dueDay }: DashboardProps) {
   const [summary, setSummary] = useState<CurrentPeriodSummary | null>(null)
+  const [previousSummary, setPreviousSummary] = useState<PreviousPeriodSummary | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    dashboardService.getCurrentPeriodSummary().then((result) => {
-      setSummary(result)
+    Promise.all([
+      dashboardService.getCurrentPeriodSummary(),
+      dashboardService.getPreviousPeriodSummary(),
+    ]).then(([current, previous]) => {
+      setSummary(current)
+      setPreviousSummary(previous)
       setLoading(false)
     })
   }, [dashboardService, closingDay, dueDay])
@@ -42,32 +54,64 @@ export function Dashboard({ dashboardService, closingDay, dueDay }: DashboardPro
   }
 
   return (
-    <Paper sx={{ p: 3, mx: 2, my: 2 }}>
-      <Typography variant="h6" sx={{ mb: 2 }}>
-        Current Period
-      </Typography>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography color="text.secondary">Period</Typography>
-          <Typography>{summary.period.toString()}</Typography>
+    <>
+      <Paper sx={{ p: 3, mx: 2, my: 2 }}>
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Current Period
+        </Typography>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography color="text.secondary">Period</Typography>
+            <Typography>{summary.period.toString()}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography color="text.secondary">Closing day</Typography>
+            <Typography>{ordinal(closingDay)}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography color="text.secondary">Due date</Typography>
+            <Typography>{ordinal(dueDay)}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography color="text.secondary">Total due</Typography>
+            <Typography variant="h6">${summary.totalDue.toFixed(2)}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography color="text.secondary">Purchases</Typography>
+            <Typography>{summary.purchaseCount}</Typography>
+          </Box>
         </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography color="text.secondary">Closing day</Typography>
-          <Typography>{ordinal(closingDay)}</Typography>
-        </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography color="text.secondary">Due date</Typography>
-          <Typography>{ordinal(dueDay)}</Typography>
-        </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography color="text.secondary">Total due</Typography>
-          <Typography variant="h6">${summary.totalDue.toFixed(2)}</Typography>
-        </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography color="text.secondary">Installments</Typography>
-          <Typography>{summary.installmentCount}</Typography>
-        </Box>
-      </Box>
-    </Paper>
+      </Paper>
+
+      {previousSummary && (
+        <Paper sx={{ p: 3, mx: 2, my: 2 }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Previous Period Summary
+          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography color="text.secondary">Period</Typography>
+              <Typography>{previousSummary.period.toString()}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography color="text.secondary">Closing date</Typography>
+              <Typography>{formatDate(previousSummary.closingDate)}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography color="text.secondary">Due date</Typography>
+              <Typography>{formatDate(previousSummary.dueDate)}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography color="text.secondary">Amount due</Typography>
+              <Typography variant="h6">${previousSummary.totalDue.toFixed(2)}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography color="text.secondary">Purchases</Typography>
+              <Typography>{previousSummary.purchaseCount}</Typography>
+            </Box>
+          </Box>
+        </Paper>
+      )}
+    </>
   )
 }

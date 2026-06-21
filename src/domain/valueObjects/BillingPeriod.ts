@@ -25,6 +25,13 @@ export class BillingPeriod {
     return this.year > other.year || (this.year === other.year && this.month > other.month)
   }
 
+  previous(): BillingPeriod {
+    if (this.month === 1) {
+      return new BillingPeriod(12, this.year - 1)
+    }
+    return new BillingPeriod(this.month - 1, this.year)
+  }
+
   toString(): string {
     const padded = this.month.toString().padStart(2, '0')
     return `${this.year}-${padded}`

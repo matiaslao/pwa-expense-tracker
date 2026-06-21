@@ -57,3 +57,12 @@ Active Purchases View Display Rules
 *Decision: Display purchase date adjacent to description. Conditionally show installment info based on installments > 1: single-installment shows total amount only; multi-installment shows total installments, remaining installments, and installment amount (no total amount). Use responsive flex layout with proper spacing to prevent edit icon overlap.*
 
 *Rationale: All data is already available from existing domain entities. Changes are purely presentational — no business logic or data model changes required.*
+
+## ADR-015
+Previous Period Summary on Dashboard
+
+*Context: Between closing date and due date, users lacked visibility of the amount due for the previously closed billing period. The Dashboard only showed current period data.*
+
+*Decision: Add a `getPreviousPeriodSummary()` method to DashboardService that computes the previous billing period, aggregates purchases assigned to it, and returns totalDue (first-installment sum), purchaseCount, closingDate, and dueDate. The existing `CurrentPeriodSummary` renames `installmentCount` to `purchaseCount` (the field always stored purchase count — the name was misleading). The BillingPeriod domain object gains a `previous()` method for reusable period arithmetic. The Dashboard component displays both panels concurrently using Promise.all.*
+
+*Rationale: All required data already exists in the Purchase entity and BillingPeriod value object. Changes are additive and require no schema migrations or entity changes. Existing current period logic and tests require only a rename from `installmentCount` to `purchaseCount`.*
