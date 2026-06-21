@@ -46,12 +46,22 @@ Completed:
 - CR-004-TASK-04: Update Existing Tests
 - CR-004-TASK-05: Add New Tests
 - CR-004-TASK-06: Update Documentation
+- CR-005: Change request analysis complete
+- CR-005-TASK-01: Rename `installmentCount` to `purchaseCount`
+- CR-005-TASK-02: Add `BillingPeriod.previous()` + unit tests
+- CR-005-TASK-03: Add `PreviousPeriodSummary` + `getPreviousPeriodSummary()` + unit tests
+- CR-005-TASK-04: Add previous period panel to Dashboard + UI tests
+- CR-005-TASK-05: Update ProductSpecification.md
+- CR-005-TASK-06: Update UserGuide.md
+- CR-005-TASK-07: Add ADR-015 to ArchitectureDecisionRecords.md
+- CR-005-TASK-08: Verify build and test suite
+- CR-006: Change request analysis complete
 
 Pending:
-- None
+- CR-006 implementation tasks
 
 Blockers:
 - None
 
 Next Action:
-Awaiting next change request
+Begin CR-006 implementation
