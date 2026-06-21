@@ -38,7 +38,7 @@ export function AppShell({ children }: AppShellProps) {
 
       <Fab
         color="primary"
-        sx={{ position: 'fixed', bottom: 72, right: 16 }}
+        sx={{ position: 'fixed', bottom: 'calc(72px + env(safe-area-inset-bottom, 0px))', right: 16 }}
         onClick={() => navigate('/new')}
       >
         <AddIcon />
@@ -52,7 +52,7 @@ export function AppShell({ children }: AppShellProps) {
           bottom: 0,
           left: 0,
           right: 0,
-          pb: 'env(safe-area-inset-bottom, 0px)',
+          pb: 'calc(8px + env(safe-area-inset-bottom, 0px))',
         }}
       >
         {tabs.map((tab) => (

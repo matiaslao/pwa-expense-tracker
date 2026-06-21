@@ -1,5 +1,7 @@
 import type { PurchaseRepository } from '../../domain/repositories/PurchaseRepository'
+import type { PeriodSnapshotRepository } from '../../domain/repositories/PeriodSnapshotRepository'
 import type { Purchase } from '../../domain/entities/Purchase'
+import { PeriodSnapshot } from '../../domain/entities/PeriodSnapshot'
 import { BillingPeriod } from '../../domain/valueObjects/BillingPeriod'
 import { calculateBillingPeriod } from '../../domain/services/BillingPeriodCalculator'
 
@@ -26,11 +28,13 @@ export interface FutureCommitment {
 
 export class DashboardService {
   private repository: PurchaseRepository
+  private snapshotRepository: PeriodSnapshotRepository
   private closingDay: number
   private dueDay: number
 
-  constructor(repository: PurchaseRepository, closingDay: number, dueDay: number) {
+  constructor(repository: PurchaseRepository, snapshotRepository: PeriodSnapshotRepository, closingDay: number, dueDay: number) {
     this.repository = repository
+    this.snapshotRepository = snapshotRepository
     this.closingDay = closingDay
     this.dueDay = dueDay
   }
@@ -38,6 +42,7 @@ export class DashboardService {
   async getCurrentPeriodSummary(): Promise<CurrentPeriodSummary> {
     const now = new Date()
     const currentPeriod = calculateBillingPeriod(this.closingDay, now)
+    await this.checkPeriodClose(currentPeriod)
     const purchases = await this.repository.findAll()
     const inPeriod = purchases.filter(p => p.billingPeriod.equals(currentPeriod))
 
@@ -58,30 +63,17 @@ export class DashboardService {
     }
   }
 
-  async getPreviousPeriodSummary(): Promise<PreviousPeriodSummary> {
-    const now = new Date()
-    const currentPeriod = calculateBillingPeriod(this.closingDay, now)
-    const previousPeriod = currentPeriod.previous()
-    const purchases = await this.repository.findAll()
-    const inPeriod = purchases.filter(p => p.billingPeriod.equals(previousPeriod))
+  async getPreviousPeriodSummary(): Promise<PreviousPeriodSummary | null> {
+    const snapshot = await this.snapshotRepository.getLatest()
+    if (!snapshot) return null
 
-    let totalDue = 0
-    for (const purchase of inPeriod) {
-      const installments = purchase.generateInstallments()
-      if (installments.length > 0) {
-        totalDue += installments[0].amount
-      }
-    }
-
-    const closingDate = new Date(previousPeriod.year, previousPeriod.month - 1, this.closingDay)
-    const dueDate = new Date(previousPeriod.year, previousPeriod.month, this.dueDay)
-
+    const [yearStr, monthStr] = snapshot.periodLabel.split('-')
     return {
-      period: previousPeriod,
-      totalDue,
-      purchaseCount: inPeriod.length,
-      closingDate,
-      dueDate,
+      period: new BillingPeriod(Number(monthStr), Number(yearStr)),
+      totalDue: snapshot.totalAmount,
+      purchaseCount: snapshot.purchaseCount,
+      closingDate: snapshot.closingDate,
+      dueDate: snapshot.dueDate,
     }
   }
 
@@ -121,21 +113,56 @@ export class DashboardService {
   }
 
   async getActivePurchases(): Promise<Purchase[]> {
+    const now = new Date()
+    const currentPeriod = calculateBillingPeriod(this.closingDay, now)
+    await this.checkPeriodClose(currentPeriod)
     const purchases = await this.repository.findAll()
-    await this.archiveCompletedPurchases(purchases)
-    return purchases
-      .filter(p => {
-        const remaining = p.getRemainingInstallments(0)
-        return remaining.length > 0 && !p.isArchived
-      })
+    await this.removeCompletedPurchases(purchases)
+    const remaining = await this.repository.findAll()
+    return remaining
+      .filter(p => p.getRemainingInstallments(0).length > 0)
       .sort((a, b) => b.purchaseDate.getTime() - a.purchaseDate.getTime())
   }
 
-  private async archiveCompletedPurchases(purchases: Purchase[]): Promise<void> {
+  private async removeCompletedPurchases(purchases: Purchase[]): Promise<void> {
     for (const purchase of purchases) {
-      if (!purchase.isArchived && purchase.isComplete()) {
-        purchase.markArchived()
-        await this.repository.save(purchase)
+      if (purchase.isComplete()) {
+        await this.repository.deleteById(purchase.id)
+      }
+    }
+  }
+
+  private async checkPeriodClose(currentPeriod: BillingPeriod): Promise<void> {
+    const previousPeriod = currentPeriod.previous()
+    const closingDate = new Date(previousPeriod.year, previousPeriod.month - 1, this.closingDay)
+    const now = new Date()
+
+    if (closingDate < now) {
+      const existing = await this.snapshotRepository.getByPeriod(previousPeriod.toString())
+      if (!existing) {
+        const purchases = await this.repository.findAll()
+        const inPeriod = purchases.filter(p => p.billingPeriod.equals(previousPeriod))
+
+        let totalDue = 0
+        for (const purchase of inPeriod) {
+          const installments = purchase.generateInstallments()
+          if (installments.length > 0) {
+            totalDue += installments[0].amount
+          }
+        }
+
+        const dueDate = new Date(previousPeriod.year, previousPeriod.month, this.dueDay)
+
+        const snapshot = new PeriodSnapshot({
+          periodLabel: previousPeriod.toString(),
+          closingDate,
+          dueDate,
+          totalAmount: totalDue,
+          purchaseCount: inPeriod.length,
+          createdAt: now,
+        })
+
+        await this.snapshotRepository.save(snapshot)
       }
     }
   }

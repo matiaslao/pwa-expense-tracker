@@ -72,8 +72,6 @@ Completed:
 - CR-006-TASK-14: Update All Test Assertions for Spanish Text
 - CR-006-TASK-15: Add Tests for Archiving and Sort
 - CR-006-TASK-16: Full Verification
-
-Pending:
 - CR-007: Change request analysis complete
 - CR-007-TASK-01: Remove `isArchived` from Purchase Entity
 - CR-007-TASK-02: Remove `isArchived` from DB Schema and Repository
@@ -93,8 +91,11 @@ Pending:
 - CR-007-TASK-16: Update Specifications and ADRs
 - CR-007-TASK-17: Full Verification
 
+Pending:
+- None
+
 Blockers:
 - None
 
 Next Action:
-CR-007 — task list ready, awaiting implementation
+CR-007 complete — awaiting next change request

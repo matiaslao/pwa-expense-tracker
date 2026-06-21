@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
 import { Purchase } from '../Purchase'
 import { BillingPeriod } from '../../valueObjects/BillingPeriod'
 
@@ -162,7 +162,16 @@ describe('Purchase', () => {
   })
 
   describe('getRemainingInstallments', () => {
-    it('returns all installments when none paid', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+      vi.setSystemTime(date(2025, 1, 1))
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('returns all installments when none paid and all due dates are future', () => {
       const purchase = new Purchase(makeValidProps({ amount: 300, installments: 3 }))
       const remaining = purchase.getRemainingInstallments(0)
       expect(remaining).toHaveLength(3)
@@ -180,41 +189,54 @@ describe('Purchase', () => {
       const remaining = purchase.getRemainingInstallments(3)
       expect(remaining).toHaveLength(0)
     })
-  })
 
-  describe('archiving', () => {
-    it('defaults isArchived to false', () => {
-      const purchase = new Purchase(makeValidProps())
-      expect(purchase.isArchived).toBe(false)
+    it('excludes installments with past due dates', () => {
+      const purchase = new Purchase(makeValidProps({
+        amount: 300,
+        installments: 3,
+        firstInstallmentDate: date(2024, 1, 15),
+      }))
+      const remaining = purchase.getRemainingInstallments(0)
+      expect(remaining).toHaveLength(0)
     })
 
-    it('accepts isArchived via props', () => {
-      const purchase = new Purchase(makeValidProps({ isArchived: true }))
-      expect(purchase.isArchived).toBe(true)
-    })
-
-    it('markArchived sets isArchived to true', () => {
-      const purchase = new Purchase(makeValidProps())
-      purchase.markArchived()
-      expect(purchase.isArchived).toBe(true)
+    it('includes only future installments when some due dates have passed', () => {
+      const purchase = new Purchase(makeValidProps({
+        amount: 300,
+        installments: 3,
+        firstInstallmentDate: date(2024, 12, 15),
+      }))
+      const remaining = purchase.getRemainingInstallments(0)
+      expect(remaining).toHaveLength(2)
+      expect(remaining[0].number).toBe(2)
+      expect(remaining[1].number).toBe(3)
     })
   })
 
   describe('isComplete', () => {
-    it('returns true when last installment due date is in the past', () => {
+    beforeEach(() => {
+      vi.useFakeTimers()
+      vi.setSystemTime(date(2025, 6, 15))
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('returns true when no remaining installments', () => {
       const purchase = new Purchase(makeValidProps({
-        amount: 300,
+        amount: 100,
         installments: 1,
         firstInstallmentDate: date(2024, 1, 15),
       }))
       expect(purchase.isComplete()).toBe(true)
     })
 
-    it('returns false when last installment due date is in the future', () => {
+    it('returns false when remaining installments exist', () => {
       const purchase = new Purchase(makeValidProps({
         amount: 300,
         installments: 3,
-        firstInstallmentDate: date(2099, 1, 15),
+        firstInstallmentDate: date(2025, 7, 15),
       }))
       expect(purchase.isComplete()).toBe(false)
     })

@@ -9,6 +9,7 @@ import { PurchaseForm } from './presentation/components/PurchaseForm'
 import { Settings } from './presentation/components/Settings'
 import { PurchaseRepositoryImpl } from './infrastructure/repositories/PurchaseRepositoryImpl'
 import { ConfigRepositoryImpl } from './infrastructure/repositories/ConfigRepositoryImpl'
+import { PeriodSnapshotRepositoryImpl } from './infrastructure/repositories/PeriodSnapshotRepositoryImpl'
 import { PurchaseService } from './application/services/PurchaseService'
 import { DashboardService } from './application/services/DashboardService'
 import type { PurchaseService as PurchaseServiceType } from './application/services/PurchaseService'
@@ -26,9 +27,10 @@ interface Services {
 function useServices(settings: CardSettings, configRepo: ConfigRepository): Services {
   return useMemo(() => {
     const repo = new PurchaseRepositoryImpl()
+    const snapshotRepo = new PeriodSnapshotRepositoryImpl()
     return {
       purchaseService: new PurchaseService(repo, settings.closingDay, settings.dueDay),
-      dashboardService: new DashboardService(repo, settings.closingDay, settings.dueDay),
+      dashboardService: new DashboardService(repo, snapshotRepo, settings.closingDay, settings.dueDay),
       configRepository: configRepo,
     }
   }, [settings.closingDay, settings.dueDay, configRepo])

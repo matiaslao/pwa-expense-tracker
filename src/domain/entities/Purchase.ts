@@ -11,7 +11,6 @@ export interface PurchaseProps {
   purchaseDate: Date
   firstInstallmentDate: Date
   billingPeriod: BillingPeriod
-  isArchived?: boolean
 }
 
 export class Purchase {
@@ -23,7 +22,6 @@ export class Purchase {
   readonly purchaseDate: Date
   readonly firstInstallmentDate: Date
   readonly billingPeriod: BillingPeriod
-  isArchived: boolean
 
   constructor(props: PurchaseProps) {
     if (!props.id) throw new Error('id is required')
@@ -45,7 +43,6 @@ export class Purchase {
     this.purchaseDate = props.purchaseDate
     this.firstInstallmentDate = props.firstInstallmentDate
     this.billingPeriod = props.billingPeriod
-    this.isArchived = props.isArchived ?? false
   }
 
   generateInstallments(): Installment[] {
@@ -73,16 +70,11 @@ export class Purchase {
 
   getRemainingInstallments(paidCount: number): Installment[] {
     const all = this.generateInstallments()
-    return all.slice(paidCount)
+    const now = new Date()
+    return all.slice(paidCount).filter(inst => inst.dueDate >= now)
   }
 
   isComplete(): boolean {
-    const installments = this.generateInstallments()
-    const last = installments[installments.length - 1]
-    return last.dueDate < new Date()
-  }
-
-  markArchived(): void {
-    this.isArchived = true
+    return this.getRemainingInstallments(0).length === 0
   }
 }

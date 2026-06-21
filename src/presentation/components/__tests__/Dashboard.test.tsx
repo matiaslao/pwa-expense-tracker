@@ -30,6 +30,8 @@ describe('Dashboard', () => {
       period: new BillingPeriod(7, 2025),
       totalDue: 500,
       purchaseCount: 3,
+      closingDay: 15,
+      dueDay: 29,
     }
     const service = createMockService(summary)
     render(<Dashboard dashboardService={service} closingDay={15} dueDay={29} />)
@@ -39,16 +41,18 @@ describe('Dashboard', () => {
     expect(await screen.findByText('3')).toBeInTheDocument()
   })
 
-  it('shows closing day', async () => {
+  it('shows closing date', async () => {
     const summary = {
       period: new BillingPeriod(7, 2025),
       totalDue: 0,
       purchaseCount: 0,
+      closingDay: 15,
+      dueDay: 29,
     }
     const service = createMockService(summary)
     render(<Dashboard dashboardService={service} closingDay={15} dueDay={29} />)
 
-    expect(await screen.findByText('15')).toBeInTheDocument()
+    expect(await screen.findByText('15/07/2025')).toBeInTheDocument()
   })
 
   it('shows due date', async () => {
@@ -56,11 +60,13 @@ describe('Dashboard', () => {
       period: new BillingPeriod(7, 2025),
       totalDue: 0,
       purchaseCount: 0,
+      closingDay: 15,
+      dueDay: 29,
     }
     const service = createMockService(summary)
     render(<Dashboard dashboardService={service} closingDay={15} dueDay={29} />)
 
-    expect(await screen.findByText('29')).toBeInTheDocument()
+    expect(await screen.findByText('29/08/2025')).toBeInTheDocument()
   })
 
   it('re-fetches summary when closingDay changes', async () => {
@@ -68,6 +74,8 @@ describe('Dashboard', () => {
       period: new BillingPeriod(7, 2025),
       totalDue: 500,
       purchaseCount: 3,
+      closingDay: 15,
+      dueDay: 29,
     }
     const service = createMockService(summary)
     const { rerender } = render(<Dashboard dashboardService={service} closingDay={15} dueDay={29} />)
@@ -87,6 +95,8 @@ describe('Dashboard', () => {
       period: new BillingPeriod(7, 2025),
       totalDue: 500,
       purchaseCount: 3,
+      closingDay: 25,
+      dueDay: 8,
     }
 
     const previousSummary = {

@@ -39,6 +39,9 @@ export function Dashboard({ dashboardService, closingDay, dueDay }: DashboardPro
     return null
   }
 
+  const currentClosingDate = new Date(summary.period.year, summary.period.month - 1, summary.closingDay)
+  const currentDueDate = new Date(summary.period.year, summary.period.month, summary.dueDay)
+
   return (
     <>
       <Paper sx={{ p: 3, mx: 2, my: 2 }}>
@@ -51,12 +54,12 @@ export function Dashboard({ dashboardService, closingDay, dueDay }: DashboardPro
             <Typography>{summary.period.toString()}</Typography>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Typography color="text.secondary">{Strings.CLOSING_DAY}</Typography>
-            <Typography>{closingDay}</Typography>
+            <Typography color="text.secondary">{Strings.CLOSING_DATE}</Typography>
+            <Typography>{formatDate(currentClosingDate)}</Typography>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <Typography color="text.secondary">{Strings.DUE_DATE}</Typography>
-            <Typography>{dueDay}</Typography>
+            <Typography>{formatDate(currentDueDate)}</Typography>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <Typography color="text.secondary">{Strings.TOTAL_DUE}</Typography>

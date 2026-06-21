@@ -15,7 +15,6 @@ function toRecord(purchase: Purchase): PurchaseRecord {
     firstInstallmentDate: purchase.firstInstallmentDate,
     billingPeriodMonth: purchase.billingPeriod.month,
     billingPeriodYear: purchase.billingPeriod.year,
-    isArchived: purchase.isArchived,
   }
 }
 
@@ -29,7 +28,6 @@ function toDomain(record: PurchaseRecord): Purchase {
     purchaseDate: record.purchaseDate,
     firstInstallmentDate: record.firstInstallmentDate,
     billingPeriod: new BillingPeriod(record.billingPeriodMonth, record.billingPeriodYear),
-    isArchived: record.isArchived ?? false,
   })
 }
 

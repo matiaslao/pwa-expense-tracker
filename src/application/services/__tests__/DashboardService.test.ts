@@ -1,7 +1,9 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
 import { DashboardService } from '../DashboardService'
 import type { PurchaseRepository } from '../../../domain/repositories/PurchaseRepository'
+import type { PeriodSnapshotRepository } from '../../../domain/repositories/PeriodSnapshotRepository'
 import { Purchase } from '../../../domain/entities/Purchase'
+import { PeriodSnapshot } from '../../../domain/entities/PeriodSnapshot'
 import { BillingPeriod } from '../../../domain/valueObjects/BillingPeriod'
 
 function date(year: number, month: number, day: number): Date {
@@ -14,6 +16,14 @@ function createMockRepository(): PurchaseRepository {
     findById: vi.fn(),
     findAll: vi.fn(),
     deleteById: vi.fn(),
+  }
+}
+
+function createMockSnapshotRepository(): PeriodSnapshotRepository {
+  return {
+    save: vi.fn(),
+    getLatest: vi.fn(),
+    getByPeriod: vi.fn(),
   }
 }
 
@@ -44,12 +54,23 @@ describe('DashboardService', () => {
   describe('getCurrentPeriodSummary', () => {
     it('returns summary for current billing period', async () => {
       const repo = createMockRepository()
+      const snapshotRepo = createMockSnapshotRepository()
+      vi.mocked(snapshotRepo.getByPeriod).mockResolvedValue(
+        new PeriodSnapshot({
+          periodLabel: '2025-06',
+          closingDate: date(2025, 6, 15),
+          dueDate: date(2025, 7, 29),
+          totalAmount: 0,
+          purchaseCount: 0,
+          createdAt: date(2025, 6, 16),
+        }),
+      )
       vi.mocked(repo.findAll).mockResolvedValue([
         makePurchase({ id: 'p1', amount: 300, installments: 3, billingPeriod: new BillingPeriod(7, 2025) }),
         makePurchase({ id: 'p2', amount: 600, installments: 3, billingPeriod: new BillingPeriod(7, 2025) }),
       ])
 
-      const service = new DashboardService(repo, 15, 29)
+      const service = new DashboardService(repo, snapshotRepo, 15, 29)
       const summary = await service.getCurrentPeriodSummary()
 
       expect(summary.period.month).toBe(7)
@@ -62,11 +83,22 @@ describe('DashboardService', () => {
 
     it('returns zero summary when no purchases in current period', async () => {
       const repo = createMockRepository()
+      const snapshotRepo = createMockSnapshotRepository()
+      vi.mocked(snapshotRepo.getByPeriod).mockResolvedValue(
+        new PeriodSnapshot({
+          periodLabel: '2025-06',
+          closingDate: date(2025, 6, 15),
+          dueDate: date(2025, 7, 29),
+          totalAmount: 0,
+          purchaseCount: 0,
+          createdAt: date(2025, 6, 16),
+        }),
+      )
       vi.mocked(repo.findAll).mockResolvedValue([
         makePurchase({ billingPeriod: new BillingPeriod(6, 2025) }),
       ])
 
-      const service = new DashboardService(repo, 15, 29)
+      const service = new DashboardService(repo, snapshotRepo, 15, 29)
       const summary = await service.getCurrentPeriodSummary()
 
       expect(summary.purchaseCount).toBe(0)
@@ -75,69 +107,78 @@ describe('DashboardService', () => {
   })
 
   describe('getPreviousPeriodSummary', () => {
-    it('returns summary for the most recently closed billing period', async () => {
+    it('returns summary from latest snapshot', async () => {
       const repo = createMockRepository()
-      vi.mocked(repo.findAll).mockResolvedValue([
-        makePurchase({ id: 'p1', amount: 300, installments: 3, billingPeriod: new BillingPeriod(6, 2025) }),
-        makePurchase({ id: 'p2', amount: 600, installments: 3, billingPeriod: new BillingPeriod(6, 2025) }),
-      ])
+      const snapshotRepo = createMockSnapshotRepository()
+      vi.mocked(snapshotRepo.getLatest).mockResolvedValue(
+        new PeriodSnapshot({
+          periodLabel: '2025-06',
+          closingDate: date(2025, 6, 25),
+          dueDate: date(2025, 7, 8),
+          totalAmount: 300,
+          purchaseCount: 2,
+          createdAt: date(2025, 6, 26),
+        }),
+      )
 
-      const service = new DashboardService(repo, 15, 29)
+      const service = new DashboardService(repo, snapshotRepo, 15, 29)
       const summary = await service.getPreviousPeriodSummary()
 
-      expect(summary.period.month).toBe(6)
-      expect(summary.period.year).toBe(2025)
-      expect(summary.totalDue).toBe(300)
-      expect(summary.purchaseCount).toBe(2)
+      expect(summary).not.toBeNull()
+      expect(summary!.period.month).toBe(6)
+      expect(summary!.period.year).toBe(2025)
+      expect(summary!.totalDue).toBe(300)
+      expect(summary!.purchaseCount).toBe(2)
     })
 
-    it('computes closing and due dates correctly', async () => {
+    it('returns closing and due dates from snapshot', async () => {
       const repo = createMockRepository()
-      vi.mocked(repo.findAll).mockResolvedValue([
-        makePurchase({ billingPeriod: new BillingPeriod(6, 2025) }),
-      ])
+      const snapshotRepo = createMockSnapshotRepository()
+      vi.mocked(snapshotRepo.getLatest).mockResolvedValue(
+        new PeriodSnapshot({
+          periodLabel: '2025-06',
+          closingDate: date(2025, 6, 25),
+          dueDate: date(2025, 7, 8),
+          totalAmount: 300,
+          purchaseCount: 1,
+          createdAt: date(2025, 6, 26),
+        }),
+      )
 
-      const service = new DashboardService(repo, 25, 8)
+      const service = new DashboardService(repo, snapshotRepo, 25, 8)
       const summary = await service.getPreviousPeriodSummary()
 
-      expect(summary.closingDate).toEqual(date(2025, 6, 25))
-      expect(summary.dueDate).toEqual(date(2025, 7, 8))
+      expect(summary).not.toBeNull()
+      expect(summary!.closingDate).toEqual(date(2025, 6, 25))
+      expect(summary!.dueDate).toEqual(date(2025, 7, 8))
     })
 
-    it('handles year boundary for previous period', async () => {
-      vi.setSystemTime(date(2025, 1, 10))
-
+    it('returns null when no snapshot exists', async () => {
       const repo = createMockRepository()
-      vi.mocked(repo.findAll).mockResolvedValue([
-        makePurchase({ id: 'p1', amount: 300, installments: 3, billingPeriod: new BillingPeriod(12, 2024) }),
-      ])
+      const snapshotRepo = createMockSnapshotRepository()
+      vi.mocked(snapshotRepo.getLatest).mockResolvedValue(null)
 
-      const service = new DashboardService(repo, 15, 29)
+      const service = new DashboardService(repo, snapshotRepo, 15, 29)
       const summary = await service.getPreviousPeriodSummary()
 
-      expect(summary.period.month).toBe(12)
-      expect(summary.period.year).toBe(2024)
-      expect(summary.totalDue).toBe(100)
-      expect(summary.purchaseCount).toBe(1)
-    })
-
-    it('returns zero summary when no purchases in previous period', async () => {
-      const repo = createMockRepository()
-      vi.mocked(repo.findAll).mockResolvedValue([
-        makePurchase({ billingPeriod: new BillingPeriod(7, 2025) }),
-      ])
-
-      const service = new DashboardService(repo, 15, 29)
-      const summary = await service.getPreviousPeriodSummary()
-
-      expect(summary.purchaseCount).toBe(0)
-      expect(summary.totalDue).toBe(0)
+      expect(summary).toBeNull()
     })
   })
 
   describe('getFutureCommitments', () => {
     it('returns future installments grouped by period', async () => {
       const repo = createMockRepository()
+      const snapshotRepo = createMockSnapshotRepository()
+      vi.mocked(snapshotRepo.getByPeriod).mockResolvedValue(
+        new PeriodSnapshot({
+          periodLabel: '2025-06',
+          closingDate: date(2025, 6, 15),
+          dueDate: date(2025, 7, 29),
+          totalAmount: 0,
+          purchaseCount: 0,
+          createdAt: date(2025, 6, 16),
+        }),
+      )
       vi.mocked(repo.findAll).mockResolvedValue([
         makePurchase({
           id: 'p1',
@@ -148,7 +189,7 @@ describe('DashboardService', () => {
         }),
       ])
 
-      const service = new DashboardService(repo, 15, 29)
+      const service = new DashboardService(repo, snapshotRepo, 15, 29)
       const commitments = await service.getFutureCommitments()
 
       expect(commitments).toHaveLength(2)
@@ -162,6 +203,17 @@ describe('DashboardService', () => {
 
     it('sorts commitments chronologically', async () => {
       const repo = createMockRepository()
+      const snapshotRepo = createMockSnapshotRepository()
+      vi.mocked(snapshotRepo.getByPeriod).mockResolvedValue(
+        new PeriodSnapshot({
+          periodLabel: '2025-09',
+          closingDate: date(2025, 9, 15),
+          dueDate: date(2025, 10, 29),
+          totalAmount: 0,
+          purchaseCount: 0,
+          createdAt: date(2025, 9, 16),
+        }),
+      )
       vi.mocked(repo.findAll).mockResolvedValue([
         makePurchase({
           id: 'p1',
@@ -172,7 +224,7 @@ describe('DashboardService', () => {
         }),
       ])
 
-      const service = new DashboardService(repo, 15, 29)
+      const service = new DashboardService(repo, snapshotRepo, 15, 29)
       const commitments = await service.getFutureCommitments()
 
       expect(commitments.map(c => c.period.month)).toEqual([11, 12])
@@ -180,9 +232,10 @@ describe('DashboardService', () => {
 
     it('returns empty when no future commitments', async () => {
       const repo = createMockRepository()
+      const snapshotRepo = createMockSnapshotRepository()
       vi.mocked(repo.findAll).mockResolvedValue([])
 
-      const service = new DashboardService(repo, 15, 29)
+      const service = new DashboardService(repo, snapshotRepo, 15, 29)
       const commitments = await service.getFutureCommitments()
 
       expect(commitments).toEqual([])
@@ -192,25 +245,33 @@ describe('DashboardService', () => {
   describe('getActivePurchases', () => {
     it('returns purchases with remaining installments', async () => {
       const repo = createMockRepository()
+      const snapshotRepo = createMockSnapshotRepository()
       vi.mocked(repo.findAll).mockResolvedValue([
         makePurchase({ id: 'p1', amount: 100, installments: 1 }),
         makePurchase({ id: 'p2', amount: 300, installments: 3 }),
       ])
 
-      const service = new DashboardService(repo, 15, 29)
+      const service = new DashboardService(repo, snapshotRepo, 15, 29)
       const active = await service.getActivePurchases()
 
       expect(active).toHaveLength(2)
     })
 
-    it('excludes archived purchases', async () => {
+    it('excludes purchases with zero remaining installments', async () => {
       const repo = createMockRepository()
+      const snapshotRepo = createMockSnapshotRepository()
+      const pastPurchase = makePurchase({
+        id: 'p1',
+        amount: 100,
+        installments: 1,
+        firstInstallmentDate: date(2024, 1, 15),
+      })
       vi.mocked(repo.findAll).mockResolvedValue([
-        makePurchase({ id: 'p1', amount: 300, installments: 3, isArchived: true }),
+        pastPurchase,
         makePurchase({ id: 'p2', amount: 300, installments: 3 }),
       ])
 
-      const service = new DashboardService(repo, 15, 29)
+      const service = new DashboardService(repo, snapshotRepo, 15, 29)
       const active = await service.getActivePurchases()
 
       expect(active).toHaveLength(1)
@@ -219,13 +280,14 @@ describe('DashboardService', () => {
 
     it('sorts by purchaseDate descending', async () => {
       const repo = createMockRepository()
+      const snapshotRepo = createMockSnapshotRepository()
       vi.mocked(repo.findAll).mockResolvedValue([
         makePurchase({ id: 'p1', purchaseDate: date(2025, 6, 10) }),
         makePurchase({ id: 'p2', purchaseDate: date(2025, 7, 15) }),
         makePurchase({ id: 'p3', purchaseDate: date(2025, 5, 1) }),
       ])
 
-      const service = new DashboardService(repo, 15, 29)
+      const service = new DashboardService(repo, snapshotRepo, 15, 29)
       const active = await service.getActivePurchases()
 
       expect(active).toHaveLength(3)
@@ -234,8 +296,19 @@ describe('DashboardService', () => {
       expect(active[2].id).toBe('p3')
     })
 
-    it('archives completed purchases automatically', async () => {
+    it('removes completed purchases automatically', async () => {
       const repo = createMockRepository()
+      const snapshotRepo = createMockSnapshotRepository()
+      vi.mocked(snapshotRepo.getByPeriod).mockResolvedValue(
+        new PeriodSnapshot({
+          periodLabel: '2025-06',
+          closingDate: date(2025, 6, 15),
+          dueDate: date(2025, 7, 29),
+          totalAmount: 0,
+          purchaseCount: 0,
+          createdAt: date(2025, 6, 16),
+        }),
+      )
       const completePurchase = makePurchase({
         id: 'p1',
         amount: 100,
@@ -244,41 +317,10 @@ describe('DashboardService', () => {
       })
       vi.mocked(repo.findAll).mockResolvedValue([completePurchase])
 
-      const service = new DashboardService(repo, 15, 29)
+      const service = new DashboardService(repo, snapshotRepo, 15, 29)
       await service.getActivePurchases()
 
-      expect(repo.save).toHaveBeenCalled()
-      expect(completePurchase.isArchived).toBe(true)
-    })
-  })
-
-  describe('period summaries include archived purchases', () => {
-    it('current period summary includes archived purchases', async () => {
-      const repo = createMockRepository()
-      vi.mocked(repo.findAll).mockResolvedValue([
-        makePurchase({ id: 'p1', amount: 300, installments: 3, billingPeriod: new BillingPeriod(7, 2025), isArchived: true }),
-        makePurchase({ id: 'p2', amount: 300, installments: 3, billingPeriod: new BillingPeriod(7, 2025) }),
-      ])
-
-      const service = new DashboardService(repo, 15, 29)
-      const summary = await service.getCurrentPeriodSummary()
-
-      expect(summary.purchaseCount).toBe(2)
-      expect(summary.totalDue).toBe(200)
-    })
-
-    it('previous period summary includes archived purchases', async () => {
-      const repo = createMockRepository()
-      vi.mocked(repo.findAll).mockResolvedValue([
-        makePurchase({ id: 'p1', amount: 300, installments: 3, billingPeriod: new BillingPeriod(6, 2025), isArchived: true }),
-        makePurchase({ id: 'p2', amount: 300, installments: 3, billingPeriod: new BillingPeriod(6, 2025) }),
-      ])
-
-      const service = new DashboardService(repo, 15, 29)
-      const summary = await service.getPreviousPeriodSummary()
-
-      expect(summary.purchaseCount).toBe(2)
-      expect(summary.totalDue).toBe(200)
+      expect(repo.deleteById).toHaveBeenCalledWith('p1')
     })
   })
 })

@@ -10,7 +10,6 @@ export interface PurchaseRecord {
   firstInstallmentDate: Date
   billingPeriodMonth: number
   billingPeriodYear: number
-  isArchived?: boolean
 }
 
 export interface SettingsRecord {
@@ -19,9 +18,19 @@ export interface SettingsRecord {
   dueDay: number
 }
 
+export interface PeriodSnapshotRecord {
+  periodLabel: string
+  closingDate: Date
+  dueDate: Date
+  totalAmount: number
+  purchaseCount: number
+  createdAt: Date
+}
+
 export class AppDatabase extends Dexie {
   purchases!: Table<PurchaseRecord, string>
   settings!: Table<SettingsRecord, string>
+  periodSnapshots!: Table<PeriodSnapshotRecord, string>
 
   constructor(name = 'ExpenseTracker') {
     super(name)
@@ -31,6 +40,11 @@ export class AppDatabase extends Dexie {
     this.version(2).stores({
       purchases: 'id, purchaseDate',
       settings: 'key',
+    })
+    this.version(3).stores({
+      purchases: 'id, purchaseDate',
+      settings: 'key',
+      periodSnapshots: 'periodLabel',
     })
   }
 }

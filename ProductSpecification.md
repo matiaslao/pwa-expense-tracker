@@ -23,6 +23,7 @@ Develop a mobile-first Progressive Web Application (PWA) for tracking credit car
 - First installment date auto-calculated from billing period
 - Offline operation
 - PWA installation on iPhone and Android
+- Bottom navigation respects mobile safe-area insets (viewport-fit=cover)
 
 ### Excluded
 - Multiple cards
@@ -49,12 +50,16 @@ Develop a mobile-first Progressive Web Application (PWA) for tracking credit car
 - Installment value = amount / installments
 - Purchases after closing day belong to next statement
 - Installments are generated dynamically
-- Active purchase = remaining installments > 0 and not archived
+- Active purchase = remaining installments > 0 (installments with future due dates)
 - Active purchases are sorted by purchase date in descending order (newest first)
-- Completed purchases (remaining installments = 0) are automatically archived
-- Archived purchases are excluded from Active Purchases but included in billing period summaries
+- Completed purchases (remaining installments = 0) are automatically removed (hard delete)
+- Billing period summaries for closed periods are stored as immutable snapshots (not recomputed from purchases)
+- Changing closing day or due day does not modify previously stored snapshots
+- Dashboard current period: calculated dynamically from active purchases
+- Dashboard previous period: loaded from the most recent stored snapshot
 - Currency formatted using es-AR conventions: ARS 125.500,75
-- Dates formatted as DD/MM/YYYY
+- Dates formatted as DD/MM/YYYY (enforced across all dashboard screens, including current period closing/due dates)
+- All user-facing dashboard dates use calendar date format, not day-of-month numbers
 - All user-visible text in Argentinian Spanish (es-AR)
 - Closing day is user-configurable (1–31), persisted in IndexedDB
 - Due day is user-configurable (1–31), defaults to closing day + 14 using calendar arithmetic (handles month boundaries via JavaScript Date)
