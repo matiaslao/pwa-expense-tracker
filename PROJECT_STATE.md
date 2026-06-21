@@ -74,10 +74,27 @@ Completed:
 - CR-006-TASK-16: Full Verification
 
 Pending:
-- None
+- CR-007: Change request analysis complete
+- CR-007-TASK-01: Remove `isArchived` from Purchase Entity
+- CR-007-TASK-02: Remove `isArchived` from DB Schema and Repository
+- CR-007-TASK-03: Rewrite Active Purchase Logic (Hard Delete)
+- CR-007-TASK-04: Define PeriodSnapshot Domain Entity and Repository Interface
+- CR-007-TASK-05: DB Schema v3 — Add `periodSnapshots` Table
+- CR-007-TASK-06: Implement PeriodSnapshotRepository
+- CR-007-TASK-07: Add Period Close Detection and Snapshot Creation
+- CR-007-TASK-08: Update Previous Period Summary to Use Snapshots
+- CR-007-TASK-09: Update Dashboard Component for Null Previous Period
+- CR-007-TASK-10: Enforce DD/MM/YYYY Date Formatting on Dashboard Current Period
+- CR-007-TASK-11: Fix Bottom Navigation Safe Area (PWA)
+- CR-007-TASK-12: Update DashboardService Tests
+- CR-007-TASK-13: Add PeriodSnapshotRepository Tests
+- CR-007-TASK-14: Update Component Tests
+- CR-007-TASK-15: Update Domain Entity Tests
+- CR-007-TASK-16: Update Specifications and ADRs
+- CR-007-TASK-17: Full Verification
 
 Blockers:
 - None
 
 Next Action:
-CR-006 complete — awaiting next change request
+CR-007 — task list ready, awaiting implementation
