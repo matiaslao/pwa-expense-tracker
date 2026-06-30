@@ -87,9 +87,11 @@ export class DashboardService {
 
   async getActivePurchases(): Promise<Purchase[]> {
     const purchases = await this.repository.findAll()
-    return purchases.filter(p => {
-      const remaining = p.getRemainingInstallments(0)
-      return remaining.length > 0
-    })
+    return purchases
+      .filter(p => {
+        const remaining = p.getRemainingInstallments(0)
+        return remaining.length > 0
+      })
+      .sort((a, b) => b.purchaseDate.getTime() - a.purchaseDate.getTime())
   }
 }

@@ -12,6 +12,10 @@ import EditIcon from '@mui/icons-material/Edit'
 import type { DashboardService } from '../../application/services/DashboardService'
 import type { Purchase } from '../../domain/entities/Purchase'
 
+function formatDate(d: Date): string {
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+}
+
 interface ActivePurchasesProps {
   dashboardService: DashboardService
   onEdit?: (purchase: Purchase) => void
@@ -50,7 +54,6 @@ export function ActivePurchases({ dashboardService, onEdit, onDelete }: ActivePu
         {purchases.map((purchase) => {
           const installments = purchase.generateInstallments()
           const totalRemaining = installments.reduce((sum, inst) => sum + inst.amount, 0)
-          const count = installments.length
 
           return (
             <ListItem
@@ -71,8 +74,12 @@ export function ActivePurchases({ dashboardService, onEdit, onDelete }: ActivePu
               }
             >
               <ListItemText
-                primary={purchase.description}
-                secondary={`$${purchase.amount.toFixed(2)} — ${count} installment${count > 1 ? 's' : ''} ($${totalRemaining.toFixed(2)} remaining)`}
+                primary={`${purchase.description} — ${formatDate(purchase.purchaseDate)}`}
+                secondary={
+                  purchase.installments > 1
+                    ? `$${purchase.amount.toFixed(2)} — ${installments.length} installments ($${totalRemaining.toFixed(2)} remaining)`
+                    : `$${purchase.amount.toFixed(2)}`
+                }
               />
             </ListItem>
           )

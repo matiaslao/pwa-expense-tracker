@@ -57,7 +57,7 @@ describe('ActivePurchases', () => {
     const service = createMockService([purchase])
     render(<ActivePurchases dashboardService={service} />)
 
-    const item = await screen.findByText('Test purchase')
+    const item = await screen.findByText('Test purchase — June 10, 2025')
     expect(item).toBeInTheDocument()
   })
 

@@ -49,6 +49,11 @@ Completed:
 - CR-004-TASK-07: Tests — Domain, app, infra tests updated
 - CR-004-TASK-08: Tests — Component tests updated (Dashboard, Settings, History)
 - CR-004-TASK-09: Documentation — ADR updates (ADR-010, ADR-014, ADR-015, ADR-016), Architecture.md, UserGuide.md
+- CR-005: Change request analysis complete
+- CR-005-TASK-01: Dashboard UI adjustments — card order, empty state, label change
+- CR-005-TASK-02: Projections and history retention
+- CR-006: Change request analysis complete
+- CR-006-TASK-01: ActivePurchases display (date next to description, conditional installment info) + sort by purchaseDate descending
 
 Pending:
 - None
