@@ -47,40 +47,6 @@ export function Dashboard({ dashboardService, snapshotService, closingDate, dueD
     <>
       <Paper sx={{ p: 3, mx: 2, my: 2 }}>
         <Typography variant="h6" sx={{ mb: 2 }}>
-          Previous Period
-        </Typography>
-        {snapshot ? (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography color="text.secondary">Period</Typography>
-              <Typography>{snapshot.period.toString()}</Typography>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography color="text.secondary">Closing date</Typography>
-              <Typography>{formatDate(snapshot.closingDate)}</Typography>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography color="text.secondary">Due date</Typography>
-              <Typography>{formatDate(snapshot.dueDate)}</Typography>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography color="text.secondary">Total due</Typography>
-              <Typography variant="h6">${snapshot.totalAmount.toFixed(2)}</Typography>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography color="text.secondary">Purchases</Typography>
-              <Typography>{snapshot.purchaseCount}</Typography>
-            </Box>
-          </Box>
-        ) : (
-          <Typography color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
-            -
-          </Typography>
-        )}
-      </Paper>
-
-      <Paper sx={{ p: 3, mx: 2, my: 2 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
           Current Period
         </Typography>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
@@ -101,8 +67,36 @@ export function Dashboard({ dashboardService, snapshotService, closingDate, dueD
             <Typography variant="h6">${summary.totalDue.toFixed(2)}</Typography>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Typography color="text.secondary">Installments</Typography>
+            <Typography color="text.secondary">Purchases</Typography>
             <Typography>{summary.installmentCount}</Typography>
+          </Box>
+        </Box>
+      </Paper>
+
+      <Paper sx={{ p: 3, mx: 2, my: 2 }}>
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Previous Period
+        </Typography>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography color="text.secondary">Period</Typography>
+            <Typography>{snapshot ? snapshot.period.toString() : '-'}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography color="text.secondary">Closing date</Typography>
+            <Typography>{snapshot ? formatDate(snapshot.closingDate) : '-'}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography color="text.secondary">Due date</Typography>
+            <Typography>{snapshot ? formatDate(snapshot.dueDate) : '-'}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography color="text.secondary">Total due</Typography>
+            <Typography variant="h6">{snapshot ? `$${snapshot.totalAmount.toFixed(2)}` : '-'}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography color="text.secondary">Purchases</Typography>
+            <Typography>{snapshot ? snapshot.purchaseCount : '-'}</Typography>
           </Box>
         </Box>
       </Paper>

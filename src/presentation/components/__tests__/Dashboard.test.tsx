@@ -33,7 +33,7 @@ describe('Dashboard', () => {
     expect(screen.getByText('Loading...')).toBeInTheDocument()
   })
 
-  it('displays current period summary', async () => {
+  it('displays current period summary with Purchases label', async () => {
     const summary = {
       period: new BillingPeriod(7, 2025),
       totalDue: 500,
@@ -43,12 +43,14 @@ describe('Dashboard', () => {
     const snapshotService = createMockSnapshotService(null)
     render(<Dashboard dashboardService={service} snapshotService={snapshotService} closingDate={defaultClosingDate} dueDate={defaultDueDate} />)
 
+    expect(await screen.findByText('Current Period')).toBeInTheDocument()
     expect(await screen.findByText('2025-07')).toBeInTheDocument()
     expect(await screen.findByText('$500.00')).toBeInTheDocument()
     expect(await screen.findByText('3')).toBeInTheDocument()
+    expect(screen.getAllByText('Purchases').length).toBe(2)
   })
 
-  it('shows previous period section with snapshot data', async () => {
+  it('shows previous period section with snapshot data below current period', async () => {
     const summary = {
       period: new BillingPeriod(7, 2025),
       totalDue: 500,
@@ -67,12 +69,13 @@ describe('Dashboard', () => {
     const snapshotService = createMockSnapshotService(snapshot)
     render(<Dashboard dashboardService={service} snapshotService={snapshotService} closingDate={defaultClosingDate} dueDate={defaultDueDate} />)
 
+    expect(await screen.findByText('Previous Period')).toBeInTheDocument()
     expect(await screen.findByText('2025-06')).toBeInTheDocument()
     expect(await screen.findByText('$300.00')).toBeInTheDocument()
     expect(await screen.findByText('2')).toBeInTheDocument()
   })
 
-  it('shows dash for previous period when no snapshot', async () => {
+  it('shows dash for each field in previous period when no snapshot', async () => {
     const summary = {
       period: new BillingPeriod(7, 2025),
       totalDue: 0,
@@ -82,7 +85,9 @@ describe('Dashboard', () => {
     const snapshotService = createMockSnapshotService(null)
     render(<Dashboard dashboardService={service} snapshotService={snapshotService} closingDate={defaultClosingDate} dueDate={defaultDueDate} />)
 
-    expect(await screen.findByText('-')).toBeInTheDocument()
+    expect(await screen.findByText('Previous Period')).toBeInTheDocument()
+    const dashes = screen.getAllByText('-')
+    expect(dashes.length).toBe(5)
   })
 
   it('re-fetches summary when closingDate changes', async () => {
