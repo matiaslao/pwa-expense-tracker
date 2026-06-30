@@ -18,18 +18,18 @@ export interface UpdatePurchaseInput {
 
 export class PurchaseService {
   private repository: PurchaseRepository
-  private closingDay: number
-  private dueDay: number
+  private closingDate: Date
+  private dueDate: Date
 
-  constructor(repository: PurchaseRepository, closingDay: number, dueDay: number) {
+  constructor(repository: PurchaseRepository, closingDate: Date, dueDate: Date) {
     this.repository = repository
-    this.closingDay = closingDay
-    this.dueDay = dueDay
+    this.closingDate = closingDate
+    this.dueDate = dueDate
   }
 
   async createPurchase(input: CreatePurchaseInput): Promise<Purchase> {
-    const billingPeriod = calculateBillingPeriod(this.closingDay, input.purchaseDate)
-    const firstInstallmentDate = new Date(billingPeriod.year, billingPeriod.month - 1, this.dueDay)
+    const billingPeriod = calculateBillingPeriod(this.closingDate, input.purchaseDate)
+    const firstInstallmentDate = new Date(billingPeriod.year, billingPeriod.month - 1, this.dueDate.getDate())
     const purchase = new Purchase({
       id: crypto.randomUUID(),
       ...input,
@@ -49,10 +49,10 @@ export class PurchaseService {
 
     const purchaseDate = input.purchaseDate ?? existing.purchaseDate
     const billingPeriod = input.purchaseDate
-      ? calculateBillingPeriod(this.closingDay, input.purchaseDate)
+      ? calculateBillingPeriod(this.closingDate, input.purchaseDate)
       : existing.billingPeriod
     const firstInstallmentDate = input.purchaseDate
-      ? new Date(billingPeriod.year, billingPeriod.month - 1, this.dueDay)
+      ? new Date(billingPeriod.year, billingPeriod.month - 1, this.dueDate.getDate())
       : existing.firstInstallmentDate
 
     const updated = new Purchase({

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Track credit card purchases with installment plans. Add purchases, view your current statement, and see future commitments — all offline.
+Track credit card purchases with installment plans. Add purchases, view your current and past statements, and see future commitments — all offline.
 
 ## Create a Purchase
 
@@ -14,19 +14,19 @@ Track credit card purchases with installment plans. Add purchases, view your cur
    - **Purchase Date** — When you made the purchase (defaults to today)
 3. Tap **Create**.
 
-The first installment date is automatically calculated based on your card's statement due date. The purchase appears in Active Purchases and its first installment is reflected on the Dashboard.
+The first installment date is automatically calculated based on your card's due date. The purchase appears in Active Purchases and its first installment is reflected on the Dashboard.
 
 ## View Dashboard
 
-The Dashboard shows the current billing period summary:
+The Dashboard shows the **Previous Period** (if available) and **Current Period** summaries:
 
-- **Period** — The billing period (e.g., `2026-06`)
-- **Closing day** — Your configured statement closing day (e.g., 15th)
-- **Due date** — Your configured payment due date (e.g., 29th)
+- **Period** — The billing period (e.g., `2026-07`)
+- **Closing date** — Your configured statement closing date (e.g., `July 23, 2026`)
+- **Due date** — Your configured payment due date (e.g., `August 6, 2026`)
 - **Total due** — Sum of first installments for purchases in this period
-- **Installments** — Number of first-installment purchases in this period
+- **Amount / Purchases** — Number of purchases in the period
 
-Closing day and due date are configurable from the **Settings** screen.
+If this is your first period, the Previous Period section shows `—` (no data).
 
 ## View Active Purchases
 
@@ -49,11 +49,21 @@ Tap the **delete (trash)** icon next to a purchase. The purchase and all its ins
 
 Tap **Future** in the bottom nav to see upcoming installment amounts grouped by billing period. This shows installments beyond the current period.
 
+## View History
+
+Tap **History** (bar chart icon) in the bottom nav to see past period summaries. Each entry shows:
+
+- Period and due date
+- Visual bar for total due amount
+- Visual bar for purchase count
+
+History data is captured automatically when each billing period closes. It is not affected by editing or deleting past purchases.
+
 ## Settings
 
 1. Tap **Settings** in the bottom nav.
-2. Adjust the **Closing Day** (1–31) — the day your statement closes.
-3. The **Due Date** automatically updates to Closing Day + 14. You can adjust it independently.
+2. Adjust the **Closing Date** — the date your statement closes each month.
+3. The **Due Date** automatically updates to Closing Date + 14 days. You can adjust it independently.
 4. Tap **Save**.
 
 Changes apply to new purchases only. Existing purchases keep their original billing periods and installment schedules.
@@ -62,10 +72,11 @@ Changes apply to new purchases only. Existing purchases keep their original bill
 
 | Tab | Path | Description |
 |-----|------|-------------|
-| Dashboard | `/` | Current period summary |
+| Dashboard | `/` | Current and previous period summary |
 | Purchases | `/purchases` | All purchases (edit/delete) |
 | Future | `/future` | Future installment commitments |
-| Settings | `/settings` | Configure closing day and due date |
+| History | `/history` | Past period summaries |
+| Settings | `/settings` | Configure closing date and due date |
 | + (FAB) | `/new` | Create new purchase |
 
 ## PWA Installation

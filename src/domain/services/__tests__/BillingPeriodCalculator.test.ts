@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { BillingPeriod } from '../../valueObjects/BillingPeriod'
-import { calculateBillingPeriod } from '../BillingPeriodCalculator'
+import { calculateBillingPeriod, nextClosingDate } from '../BillingPeriodCalculator'
 
 function date(year: number, month: number, day: number): Date {
   return new Date(year, month - 1, day)
@@ -124,67 +124,97 @@ describe('BillingPeriod', () => {
 
 describe('calculateBillingPeriod', () => {
   it('assigns to same month when purchase is before closing day', () => {
-    const period = calculateBillingPeriod(15, date(2025, 6, 10))
+    const period = calculateBillingPeriod(date(2025, 6, 15), date(2025, 6, 10))
     expect(period.month).toBe(6)
     expect(period.year).toBe(2025)
   })
 
   it('assigns to next month when purchase is on closing day', () => {
-    const period = calculateBillingPeriod(15, date(2025, 6, 15))
+    const period = calculateBillingPeriod(date(2025, 6, 15), date(2025, 6, 15))
     expect(period.month).toBe(7)
     expect(period.year).toBe(2025)
   })
 
   it('assigns to next month when purchase is after closing day', () => {
-    const period = calculateBillingPeriod(15, date(2025, 6, 20))
+    const period = calculateBillingPeriod(date(2025, 6, 15), date(2025, 6, 20))
     expect(period.month).toBe(7)
     expect(period.year).toBe(2025)
   })
 
   it('handles year boundary when purchase is after closing day in December', () => {
-    const period = calculateBillingPeriod(15, date(2025, 12, 20))
+    const period = calculateBillingPeriod(date(2025, 12, 15), date(2025, 12, 20))
     expect(period.month).toBe(1)
     expect(period.year).toBe(2026)
   })
 
   it('handles year boundary when purchase is on closing day in December', () => {
-    const period = calculateBillingPeriod(15, date(2025, 12, 15))
+    const period = calculateBillingPeriod(date(2025, 12, 15), date(2025, 12, 15))
     expect(period.month).toBe(1)
     expect(period.year).toBe(2026)
   })
 
   it('keeps in same year when purchase is before closing day in December', () => {
-    const period = calculateBillingPeriod(15, date(2025, 12, 10))
+    const period = calculateBillingPeriod(date(2025, 12, 15), date(2025, 12, 10))
     expect(period.month).toBe(12)
     expect(period.year).toBe(2025)
   })
 
   it('works with closing day 28', () => {
-    expect(calculateBillingPeriod(28, date(2025, 2, 27)).month).toBe(2)
-    expect(calculateBillingPeriod(28, date(2025, 2, 28)).month).toBe(3)
+    expect(calculateBillingPeriod(date(2025, 2, 28), date(2025, 2, 27)).month).toBe(2)
+    expect(calculateBillingPeriod(date(2025, 2, 28), date(2025, 2, 28)).month).toBe(3)
   })
 
   it('works with closing day 30', () => {
-    expect(calculateBillingPeriod(30, date(2025, 4, 29)).month).toBe(4)
-    expect(calculateBillingPeriod(30, date(2025, 4, 30)).month).toBe(5)
+    expect(calculateBillingPeriod(date(2025, 4, 30), date(2025, 4, 29)).month).toBe(4)
+    expect(calculateBillingPeriod(date(2025, 4, 30), date(2025, 4, 30)).month).toBe(5)
   })
 
   it('works with closing day 31 and month with 30 days', () => {
-    const period = calculateBillingPeriod(31, date(2025, 4, 30))
+    const period = calculateBillingPeriod(date(2025, 5, 31), date(2025, 4, 30))
     expect(period.month).toBe(4)
     expect(period.year).toBe(2025)
   })
 
   it('works with closing day 31 in February', () => {
-    const period = calculateBillingPeriod(31, date(2025, 2, 28))
+    const period = calculateBillingPeriod(date(2025, 3, 31), date(2025, 2, 28))
     expect(period.month).toBe(2)
     expect(period.year).toBe(2025)
   })
 
   it('is a pure function (no side effects)', () => {
     const d = date(2025, 6, 20)
+    const cd = date(2025, 6, 15)
     const copy = new Date(d)
-    calculateBillingPeriod(15, d)
+    const cdCopy = new Date(cd)
+    calculateBillingPeriod(cd, d)
     expect(d.getTime()).toBe(copy.getTime())
+    expect(cd.getTime()).toBe(cdCopy.getTime())
+  })
+})
+
+describe('nextClosingDate', () => {
+  it('advances by one month when same day exists', () => {
+    const result = nextClosingDate(date(2026, 7, 23))
+    expect(result).toEqual(date(2026, 8, 23))
+  })
+
+  it('rolls to last day of month when day exceeds next month', () => {
+    const result = nextClosingDate(date(2026, 1, 31))
+    expect(result).toEqual(date(2026, 2, 28))
+  })
+
+  it('rolls to last day in leap year February', () => {
+    const result = nextClosingDate(date(2024, 1, 31))
+    expect(result).toEqual(date(2024, 2, 29))
+  })
+
+  it('handles year boundary', () => {
+    const result = nextClosingDate(date(2026, 12, 23))
+    expect(result).toEqual(date(2027, 1, 23))
+  })
+
+  it('handles year boundary with month-end rollover', () => {
+    const result = nextClosingDate(date(2026, 12, 31))
+    expect(result).toEqual(date(2027, 1, 31))
   })
 })

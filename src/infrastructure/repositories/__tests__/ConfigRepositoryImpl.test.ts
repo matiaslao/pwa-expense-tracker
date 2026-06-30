@@ -14,27 +14,39 @@ describe('ConfigRepositoryImpl', () => {
     it('returns defaults when no settings saved', async () => {
       const settings = await repo.getSettings()
 
-      expect(settings.closingDay).toBe(15)
-      expect(settings.dueDay).toBe(29)
+      expect(settings.closingDate.getMonth()).toBe(6)
+      expect(settings.closingDate.getDate()).toBe(23)
+      expect(settings.dueDate.getDate()).toBe(6)
+      expect(settings.dueDate.getMonth()).toBe(7)
     })
   })
 
   describe('saveSettings', () => {
     it('persists settings and returns them on getSettings', async () => {
-      await repo.saveSettings({ closingDay: 10, dueDay: 24 })
+      const closingDate = new Date(2026, 6, 10)
+      const dueDate = new Date(2026, 6, 24)
+      await repo.saveSettings({ closingDate, dueDate })
 
       const settings = await repo.getSettings()
-      expect(settings.closingDay).toBe(10)
-      expect(settings.dueDay).toBe(24)
+      expect(settings.closingDate.getFullYear()).toBe(2026)
+      expect(settings.closingDate.getMonth()).toBe(6)
+      expect(settings.closingDate.getDate()).toBe(10)
+      expect(settings.dueDate.getDate()).toBe(24)
     })
 
     it('overwrites previous settings', async () => {
-      await repo.saveSettings({ closingDay: 5, dueDay: 19 })
-      await repo.saveSettings({ closingDay: 20, dueDay: 5 })
+      const firstClose = new Date(2026, 6, 5)
+      const firstDue = new Date(2026, 6, 19)
+      await repo.saveSettings({ closingDate: firstClose, dueDate: firstDue })
+
+      const secondClose = new Date(2026, 7, 20)
+      const secondDue = new Date(2026, 7, 5)
+      await repo.saveSettings({ closingDate: secondClose, dueDate: secondDue })
 
       const settings = await repo.getSettings()
-      expect(settings.closingDay).toBe(20)
-      expect(settings.dueDay).toBe(5)
+      expect(settings.closingDate.getDate()).toBe(20)
+      expect(settings.closingDate.getMonth()).toBe(7)
+      expect(settings.dueDate.getDate()).toBe(5)
     })
   })
 
@@ -45,10 +57,10 @@ describe('ConfigRepositoryImpl', () => {
       const repo1 = new ConfigRepositoryImpl(db1)
       const repo2 = new ConfigRepositoryImpl(db2)
 
-      await repo1.saveSettings({ closingDay: 1, dueDay: 15 })
+      await repo1.saveSettings({ closingDate: new Date(2026, 0, 1), dueDate: new Date(2026, 0, 15) })
       const settings = await repo2.getSettings()
 
-      expect(settings.closingDay).toBe(15)
+      expect(settings.closingDate.getMonth()).toBe(6)
     })
   })
 })

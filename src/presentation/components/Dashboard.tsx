@@ -5,33 +5,35 @@ import {
   Box,
 } from '@mui/material'
 import type { DashboardService, CurrentPeriodSummary } from '../../application/services/DashboardService'
+import type { PeriodSnapshotService } from '../../application/services/PeriodSnapshotService'
+import type { PeriodSnapshot } from '../../domain/types/PeriodSnapshot'
 
-function ordinal(n: number): string {
-  if (n > 3 && n < 21) return `${n}th`
-  switch (n % 10) {
-    case 1: return `${n}st`
-    case 2: return `${n}nd`
-    case 3: return `${n}rd`
-    default: return `${n}th`
-  }
+function formatDate(d: Date): string {
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
 interface DashboardProps {
   dashboardService: DashboardService
-  closingDay: number
-  dueDay: number
+  snapshotService: PeriodSnapshotService
+  closingDate: Date
+  dueDate: Date
 }
 
-export function Dashboard({ dashboardService, closingDay, dueDay }: DashboardProps) {
+export function Dashboard({ dashboardService, snapshotService, closingDate, dueDate }: DashboardProps) {
   const [summary, setSummary] = useState<CurrentPeriodSummary | null>(null)
+  const [snapshot, setSnapshot] = useState<PeriodSnapshot | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    dashboardService.getCurrentPeriodSummary().then((result) => {
-      setSummary(result)
+    Promise.all([
+      dashboardService.getCurrentPeriodSummary(),
+      snapshotService.getLatestSnapshot(),
+    ]).then(([s, snap]) => {
+      setSummary(s)
+      setSnapshot(snap)
       setLoading(false)
     })
-  }, [dashboardService, closingDay, dueDay])
+  }, [dashboardService, snapshotService, closingDate, dueDate])
 
   if (loading) {
     return <Typography sx={{ p: 2, textAlign: 'center' }}>Loading...</Typography>
@@ -42,32 +44,68 @@ export function Dashboard({ dashboardService, closingDay, dueDay }: DashboardPro
   }
 
   return (
-    <Paper sx={{ p: 3, mx: 2, my: 2 }}>
-      <Typography variant="h6" sx={{ mb: 2 }}>
-        Current Period
-      </Typography>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography color="text.secondary">Period</Typography>
-          <Typography>{summary.period.toString()}</Typography>
+    <>
+      <Paper sx={{ p: 3, mx: 2, my: 2 }}>
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Previous Period
+        </Typography>
+        {snapshot ? (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography color="text.secondary">Period</Typography>
+              <Typography>{snapshot.period.toString()}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography color="text.secondary">Closing date</Typography>
+              <Typography>{formatDate(snapshot.closingDate)}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography color="text.secondary">Due date</Typography>
+              <Typography>{formatDate(snapshot.dueDate)}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography color="text.secondary">Total due</Typography>
+              <Typography variant="h6">${snapshot.totalAmount.toFixed(2)}</Typography>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography color="text.secondary">Purchases</Typography>
+              <Typography>{snapshot.purchaseCount}</Typography>
+            </Box>
+          </Box>
+        ) : (
+          <Typography color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+            -
+          </Typography>
+        )}
+      </Paper>
+
+      <Paper sx={{ p: 3, mx: 2, my: 2 }}>
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Current Period
+        </Typography>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography color="text.secondary">Period</Typography>
+            <Typography>{summary.period.toString()}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography color="text.secondary">Closing date</Typography>
+            <Typography>{formatDate(closingDate)}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography color="text.secondary">Due date</Typography>
+            <Typography>{formatDate(dueDate)}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography color="text.secondary">Total due</Typography>
+            <Typography variant="h6">${summary.totalDue.toFixed(2)}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Typography color="text.secondary">Installments</Typography>
+            <Typography>{summary.installmentCount}</Typography>
+          </Box>
         </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography color="text.secondary">Closing day</Typography>
-          <Typography>{ordinal(closingDay)}</Typography>
-        </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography color="text.secondary">Due date</Typography>
-          <Typography>{ordinal(dueDay)}</Typography>
-        </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography color="text.secondary">Total due</Typography>
-          <Typography variant="h6">${summary.totalDue.toFixed(2)}</Typography>
-        </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography color="text.secondary">Installments</Typography>
-          <Typography>{summary.installmentCount}</Typography>
-        </Box>
-      </Box>
-    </Paper>
+      </Paper>
+    </>
   )
 }

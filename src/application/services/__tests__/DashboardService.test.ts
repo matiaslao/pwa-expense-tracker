@@ -31,6 +31,9 @@ function makePurchase(overrides: Record<string, unknown> = {}) {
   })
 }
 
+const defaultClosingDate = date(2025, 7, 15)
+const defaultDueDate = date(2025, 7, 29)
+
 describe('DashboardService', () => {
   beforeEach(() => {
     vi.useFakeTimers()
@@ -49,15 +52,15 @@ describe('DashboardService', () => {
         makePurchase({ id: 'p2', amount: 600, installments: 3, billingPeriod: new BillingPeriod(7, 2025) }),
       ])
 
-      const service = new DashboardService(repo, 15, 29)
+      const service = new DashboardService(repo, defaultClosingDate, defaultDueDate)
       const summary = await service.getCurrentPeriodSummary()
 
       expect(summary.period.month).toBe(7)
       expect(summary.period.year).toBe(2025)
       expect(summary.totalDue).toBe(300)
       expect(summary.installmentCount).toBe(2)
-      expect(summary.closingDay).toBe(15)
-      expect(summary.dueDay).toBe(29)
+      expect(summary.closingDate).toEqual(defaultClosingDate)
+      expect(summary.dueDate).toEqual(defaultDueDate)
     })
 
     it('returns zero summary when no purchases in current period', async () => {
@@ -66,7 +69,7 @@ describe('DashboardService', () => {
         makePurchase({ billingPeriod: new BillingPeriod(6, 2025) }),
       ])
 
-      const service = new DashboardService(repo, 15, 29)
+      const service = new DashboardService(repo, defaultClosingDate, defaultDueDate)
       const summary = await service.getCurrentPeriodSummary()
 
       expect(summary.installmentCount).toBe(0)
@@ -87,7 +90,7 @@ describe('DashboardService', () => {
         }),
       ])
 
-      const service = new DashboardService(repo, 15, 29)
+      const service = new DashboardService(repo, defaultClosingDate, defaultDueDate)
       const commitments = await service.getFutureCommitments()
 
       expect(commitments).toHaveLength(2)
@@ -111,7 +114,7 @@ describe('DashboardService', () => {
         }),
       ])
 
-      const service = new DashboardService(repo, 15, 29)
+      const service = new DashboardService(repo, defaultClosingDate, defaultDueDate)
       const commitments = await service.getFutureCommitments()
 
       expect(commitments.map(c => c.period.month)).toEqual([11, 12])
@@ -121,7 +124,7 @@ describe('DashboardService', () => {
       const repo = createMockRepository()
       vi.mocked(repo.findAll).mockResolvedValue([])
 
-      const service = new DashboardService(repo, 15, 29)
+      const service = new DashboardService(repo, defaultClosingDate, defaultDueDate)
       const commitments = await service.getFutureCommitments()
 
       expect(commitments).toEqual([])
@@ -136,7 +139,7 @@ describe('DashboardService', () => {
         makePurchase({ id: 'p2', amount: 300, installments: 3 }),
       ])
 
-      const service = new DashboardService(repo, 15, 29)
+      const service = new DashboardService(repo, defaultClosingDate, defaultDueDate)
       const active = await service.getActivePurchases()
 
       expect(active).toHaveLength(2)

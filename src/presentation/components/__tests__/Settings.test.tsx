@@ -1,10 +1,14 @@
-import { describe, it, expect, vi, afterEach } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Settings } from '../Settings'
 import type { ConfigRepository } from '../../../domain/repositories/ConfigRepository'
 
-function createMockRepo(settings = { closingDay: 15, dueDay: 29 }): ConfigRepository {
+function date(year: number, month: number, day: number): Date {
+  return new Date(year, month - 1, day)
+}
+
+function createMockRepo(settings = { closingDate: date(2026, 7, 23), dueDate: date(2026, 8, 6) }): ConfigRepository {
   return {
     getSettings: vi.fn().mockResolvedValue(settings),
     saveSettings: vi.fn(),
@@ -12,9 +16,6 @@ function createMockRepo(settings = { closingDay: 15, dueDay: 29 }): ConfigReposi
 }
 
 describe('Settings', () => {
-  afterEach(() => {
-    vi.useRealTimers()
-  })
   it('shows loading state initially', () => {
     const repo = createMockRepo()
     render(<Settings configRepository={repo} />)
@@ -23,56 +24,37 @@ describe('Settings', () => {
   })
 
   it('renders fields with current settings', async () => {
-    const repo = createMockRepo({ closingDay: 10, dueDay: 24 })
+    const repo = createMockRepo({ closingDate: date(2026, 6, 10), dueDate: date(2026, 6, 24) })
     render(<Settings configRepository={repo} />)
 
-    expect(await screen.findByDisplayValue('10')).toBeInTheDocument()
-    expect(await screen.findByDisplayValue('24')).toBeInTheDocument()
+    expect(await screen.findByDisplayValue('2026-06-10')).toBeInTheDocument()
+    expect(await screen.findByDisplayValue('2026-06-24')).toBeInTheDocument()
   })
 
-  it('updates due day when closing day changes', async () => {
+  it('updates due date when closing date changes', async () => {
     const repo = createMockRepo()
     const user = userEvent.setup()
     render(<Settings configRepository={repo} />)
 
-    const closingInput = await screen.findByLabelText(/closing day/i)
+    const closingInput = await screen.findByLabelText(/closing date/i)
     await user.clear(closingInput)
-    await user.type(closingInput, '10')
+    await user.type(closingInput, '2026-07-10')
 
     const dueInput = screen.getByLabelText(/due date/i)
-    expect(dueInput).toHaveValue(24)
+    expect(dueInput).toHaveValue('2026-07-24')
   })
 
-  it('auto-calculates due day across month boundary', async () => {
-    vi.useFakeTimers({ toFake: ['Date'] })
-    vi.setSystemTime(new Date(2026, 5, 15))
-
+  it('auto-calculates due date across month boundary', async () => {
     const repo = createMockRepo()
     const user = userEvent.setup()
     render(<Settings configRepository={repo} />)
 
-    const closingInput = await screen.findByLabelText(/closing day/i)
+    const closingInput = await screen.findByLabelText(/closing date/i)
     await user.clear(closingInput)
-    await user.type(closingInput, '20')
+    await user.type(closingInput, '2026-07-20')
 
     const dueInput = screen.getByLabelText(/due date/i)
-    expect(dueInput).toHaveValue(4)
-  })
-
-  it('auto-calculates due day within same month', async () => {
-    vi.useFakeTimers({ toFake: ['Date'] })
-    vi.setSystemTime(new Date(2026, 5, 15))
-
-    const repo = createMockRepo()
-    const user = userEvent.setup()
-    render(<Settings configRepository={repo} />)
-
-    const closingInput = await screen.findByLabelText(/closing day/i)
-    await user.clear(closingInput)
-    await user.type(closingInput, '5')
-
-    const dueInput = screen.getByLabelText(/due date/i)
-    expect(dueInput).toHaveValue(19)
+    expect(dueInput).toHaveValue('2026-08-03')
   })
 
   it('calls saveSettings on valid submit', async () => {
@@ -81,27 +63,17 @@ describe('Settings', () => {
     const user = userEvent.setup()
     render(<Settings configRepository={repo} onSave={onSave} />)
 
-    await screen.findByDisplayValue('15')
+    await screen.findByDisplayValue('2026-07-23')
     await user.click(screen.getByRole('button', { name: /save/i }))
 
     await waitFor(() => {
-      expect(repo.saveSettings).toHaveBeenCalledWith({ closingDay: 15, dueDay: 29 })
+      expect(repo.saveSettings).toHaveBeenCalled()
     })
-    expect(onSave).toHaveBeenCalledWith({ closingDay: 15, dueDay: 29 })
-  })
-
-  it('shows validation error for invalid closing day', async () => {
-    const repo = createMockRepo()
-    const user = userEvent.setup()
-    render(<Settings configRepository={repo} />)
-
-    await screen.findByDisplayValue('15')
-    const closingInput = screen.getByLabelText(/closing day/i)
-    await user.clear(closingInput)
-    await user.type(closingInput, '0')
-    await user.click(screen.getByRole('button', { name: /save/i }))
-
-    expect(await screen.findByText('Closing day must be between 1 and 31')).toBeInTheDocument()
+    const saved = (repo.saveSettings as ReturnType<typeof vi.fn>).mock.calls[0][0]
+    expect(saved.closingDate.getDate()).toBe(23)
+    expect(saved.closingDate.getMonth()).toBe(6)
+    expect(saved.dueDate.getMonth()).toBe(7)
+    expect(onSave).toHaveBeenCalled()
   })
 
   it('calls onCancel when cancel button is clicked', async () => {
@@ -110,9 +82,22 @@ describe('Settings', () => {
     const user = userEvent.setup()
     render(<Settings configRepository={repo} onCancel={onCancel} />)
 
-    await screen.findByDisplayValue('15')
+    await screen.findByDisplayValue('2026-07-23')
     await user.click(screen.getByRole('button', { name: /cancel/i }))
 
     expect(onCancel).toHaveBeenCalled()
+  })
+
+  it('shows validation error for empty date', async () => {
+    const repo = createMockRepo()
+    const user = userEvent.setup()
+    render(<Settings configRepository={repo} />)
+
+    await screen.findByDisplayValue('2026-07-23')
+    const closingInput = screen.getByLabelText(/closing date/i)
+    await user.clear(closingInput)
+    await user.click(screen.getByRole('button', { name: /save/i }))
+
+    expect(await screen.findByText('Closing date is required')).toBeInTheDocument()
   })
 })

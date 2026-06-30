@@ -14,13 +14,25 @@ export interface PurchaseRecord {
 
 export interface SettingsRecord {
   key: 'card'
-  closingDay: number
-  dueDay: number
+  closingDate: Date
+  dueDate: Date
+}
+
+export interface PeriodSnapshotRecord {
+  id: string
+  periodMonth: number
+  periodYear: number
+  closingDate: Date
+  dueDate: Date
+  totalAmount: number
+  purchaseCount: number
+  capturedAt: Date
 }
 
 export class AppDatabase extends Dexie {
   purchases!: Table<PurchaseRecord, string>
   settings!: Table<SettingsRecord, string>
+  periodSnapshots!: Table<PeriodSnapshotRecord, string>
 
   constructor(name = 'ExpenseTracker') {
     super(name)
@@ -30,6 +42,11 @@ export class AppDatabase extends Dexie {
     this.version(2).stores({
       purchases: 'id, purchaseDate',
       settings: 'key',
+    })
+    this.version(3).stores({
+      purchases: 'id, purchaseDate',
+      settings: 'key',
+      periodSnapshots: 'id, capturedAt',
     })
   }
 }

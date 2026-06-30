@@ -34,11 +34,21 @@ Completed:
 - CR-002: Change request analysis complete
 - CR-002-TASK-00: Documentation — Specs and ADRs updated for CR-002
 - CR-003: iOS PWA readiness analysis complete
-- CR-003-TASK-01: Generate PNG icons (180×180, 152×152, 120×120, 192×192, 512×512)
-- CR-003-TASK-02: Update index.html — Apple touch icon & meta tags
-- CR-003-TASK-03: Update vite.config.ts — Manifest icons & background_color
-- CR-003-TASK-04: Verify build output & test on iPhone
+- CR-003-TASK-01: Generate PNG icons (180x180, 152x152, 120x120, 192x192, 512x512)
+- CR-003-TASK-02: Update index.html — Apple touch icon and meta tags
+- CR-003-TASK-03: Update vite.config.ts — Manifest icons and background_color
+- CR-003-TASK-04: Verify build output and test on iPhone
 - CR-003-TASK-05: Add splash screen support (iOS)
+- CR-004: Full Date Support, Previous Period Snapshot, Historical Chart
+- CR-004-TASK-01: Domain — CardSettings type (Date values), PeriodSnapshot entity, updated BillingPeriodCalculator with month-end rollover
+- CR-004-TASK-02: Domain/App — PeriodSnapshotRepository interface, PeriodSnapshotService
+- CR-004-TASK-03: Infra — DB v3 migration, ConfigRepositoryImpl (Date), PeriodSnapshotRepositoryImpl
+- CR-004-TASK-04: Presentation — Settings date pickers, Dashboard previous period card
+- CR-004-TASK-05: Presentation — History tab, routing, AppShell (5th tab)
+- CR-004-TASK-06: Startup snapshot detection in App.tsx
+- CR-004-TASK-07: Tests — Domain, app, infra tests updated
+- CR-004-TASK-08: Tests — Component tests updated (Dashboard, Settings, History)
+- CR-004-TASK-09: Documentation — ADR updates (ADR-010, ADR-014, ADR-015, ADR-016), Architecture.md, UserGuide.md
 
 Pending:
 - None

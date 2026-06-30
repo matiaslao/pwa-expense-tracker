@@ -9,6 +9,17 @@ import {
 import type { ConfigRepository } from '../../domain/repositories/ConfigRepository'
 import type { CardSettings } from '../../domain/types/CardSettings'
 
+function toDateInputValue(d: Date): string {
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+function fromDateInputValue(s: string): Date {
+  return new Date(s + 'T12:00:00')
+}
+
 interface SettingsProps {
   configRepository: ConfigRepository
   onSave?: (settings: CardSettings) => void
@@ -16,29 +27,27 @@ interface SettingsProps {
 }
 
 export function Settings({ configRepository, onSave, onCancel }: SettingsProps) {
-  const [closingDay, setClosingDay] = useState('')
-  const [dueDay, setDueDay] = useState('')
+  const [closingDateStr, setClosingDateStr] = useState('')
+  const [dueDateStr, setDueDateStr] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
     configRepository.getSettings().then((settings: CardSettings) => {
-      setClosingDay(settings.closingDay.toString())
-      setDueDay(settings.dueDay.toString())
+      setClosingDateStr(toDateInputValue(settings.closingDate))
+      setDueDateStr(toDateInputValue(settings.dueDate))
       setLoading(false)
     })
   }, [configRepository])
 
-  const handleClosingDayChange = (value: string) => {
-    setClosingDay(value)
-    const num = parseInt(value, 10)
-    if (!isNaN(num) && num >= 1 && num <= 31) {
-      const now = new Date()
-      const closingDate = new Date(now.getFullYear(), now.getMonth(), num)
-      closingDate.setDate(closingDate.getDate() + 14)
-      const defaultDue = closingDate.getDate()
-      setDueDay(defaultDue.toString())
+  const handleClosingDateChange = (value: string) => {
+    setClosingDateStr(value)
+    const parsed = fromDateInputValue(value)
+    if (!isNaN(parsed.getTime())) {
+      const due = new Date(parsed)
+      due.setDate(due.getDate() + 14)
+      setDueDateStr(toDateInputValue(due))
     }
   }
 
@@ -46,22 +55,23 @@ export function Settings({ configRepository, onSave, onCancel }: SettingsProps) 
     e.preventDefault()
     setError('')
 
-    const closingNum = parseInt(closingDay, 10)
-    const dueNum = parseInt(dueDay, 10)
+    const closingDate = fromDateInputValue(closingDateStr)
+    const dueDate = fromDateInputValue(dueDateStr)
 
-    if (isNaN(closingNum) || closingNum < 1 || closingNum > 31) {
-      setError('Closing day must be between 1 and 31')
+    if (isNaN(closingDate.getTime())) {
+      setError('Closing date is required')
       return
     }
-    if (isNaN(dueNum) || dueNum < 1 || dueNum > 31) {
-      setError('Due day must be between 1 and 31')
+    if (isNaN(dueDate.getTime())) {
+      setError('Due date is required')
       return
     }
 
     setSaving(true)
     try {
-      await configRepository.saveSettings({ closingDay: closingNum, dueDay: dueNum })
-      onSave?.({ closingDay: closingNum, dueDay: dueNum })
+      const settings: CardSettings = { closingDate, dueDate }
+      await configRepository.saveSettings(settings)
+      onSave?.(settings)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
@@ -80,26 +90,26 @@ export function Settings({ configRepository, onSave, onCancel }: SettingsProps) 
       </Typography>
       <Box component="form" onSubmit={handleSubmit} noValidate sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <TextField
-          label="Closing Day"
-          type="number"
-          value={closingDay}
-          onChange={(e) => handleClosingDayChange(e.target.value)}
+          label="Closing Date"
+          type="date"
+          value={closingDateStr}
+          onChange={(e) => handleClosingDateChange(e.target.value)}
           required
           fullWidth
           size="small"
-          inputProps={{ min: 1, max: 31 }}
-          helperText="Day of the month your statement closes"
+          InputLabelProps={{ shrink: true }}
+          helperText="Your statement closes on this date each month"
         />
         <TextField
           label="Due Date"
-          type="number"
-          value={dueDay}
-          onChange={(e) => setDueDay(e.target.value)}
+          type="date"
+          value={dueDateStr}
+          onChange={(e) => setDueDateStr(e.target.value)}
           required
           fullWidth
           size="small"
-          inputProps={{ min: 1, max: 31 }}
-          helperText="Day of the month your payment is due"
+          InputLabelProps={{ shrink: true }}
+          helperText="Your payment is due on this date"
         />
         {error && (
           <Typography color="error" variant="body2">

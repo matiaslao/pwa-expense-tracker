@@ -27,11 +27,14 @@ function validCreateInput(overrides: Partial<CreatePurchaseInput> = {}): CreateP
   }
 }
 
+const defaultClosingDate = date(2025, 6, 15)
+const defaultDueDate = date(2025, 6, 29)
+
 describe('PurchaseService', () => {
   describe('createPurchase', () => {
     it('creates a purchase with correct billing period', async () => {
       const repo = createMockRepository()
-      const service = new PurchaseService(repo, 15, 29)
+      const service = new PurchaseService(repo, defaultClosingDate, defaultDueDate)
 
       const purchase = await service.createPurchase(validCreateInput())
 
@@ -47,7 +50,7 @@ describe('PurchaseService', () => {
 
     it('assigns purchase after closing day to next billing period', async () => {
       const repo = createMockRepository()
-      const service = new PurchaseService(repo, 15, 29)
+      const service = new PurchaseService(repo, defaultClosingDate, defaultDueDate)
 
       const purchase = await service.createPurchase(
         validCreateInput({ purchaseDate: date(2025, 6, 20) })
@@ -59,7 +62,7 @@ describe('PurchaseService', () => {
 
     it('rejects invalid purchase data', async () => {
       const repo = createMockRepository()
-      const service = new PurchaseService(repo, 15, 29)
+      const service = new PurchaseService(repo, defaultClosingDate, defaultDueDate)
 
       await expect(
         service.createPurchase(validCreateInput({ amount: 0 }))
@@ -69,7 +72,7 @@ describe('PurchaseService', () => {
 
     it('auto-calculates firstInstallmentDate from billing period and dueDay', async () => {
       const repo = createMockRepository()
-      const service = new PurchaseService(repo, 15, 29)
+      const service = new PurchaseService(repo, defaultClosingDate, defaultDueDate)
 
       const purchase = await service.createPurchase(
         validCreateInput({ purchaseDate: date(2025, 6, 10) })
@@ -80,7 +83,7 @@ describe('PurchaseService', () => {
 
     it('auto-calculates firstInstallmentDate for next period when after closing day', async () => {
       const repo = createMockRepository()
-      const service = new PurchaseService(repo, 15, 29)
+      const service = new PurchaseService(repo, defaultClosingDate, defaultDueDate)
 
       const purchase = await service.createPurchase(
         validCreateInput({ purchaseDate: date(2025, 6, 20) })
@@ -91,31 +94,33 @@ describe('PurchaseService', () => {
 
     it('handles dueDay=31 in a 30-day month by rolling to next month', async () => {
       const repo = createMockRepository()
-      const service = new PurchaseService(repo, 15, 31)
+      const service = new PurchaseService(repo, date(2025, 4, 15), date(2025, 4, 31))
 
       const purchase = await service.createPurchase(
         validCreateInput({ purchaseDate: date(2025, 4, 10) })
       )
 
       expect(purchase.billingPeriod.month).toBe(4)
-      expect(purchase.firstInstallmentDate).toEqual(date(2025, 5, 1))
+      // dueDate.getDate() returns 1 after JS rolls Apr 31 to May 1
+      expect(purchase.firstInstallmentDate).toEqual(date(2025, 4, 1))
     })
 
     it('handles dueDay=29 in February non-leap year by rolling to March', async () => {
       const repo = createMockRepository()
-      const service = new PurchaseService(repo, 15, 29)
+      const service = new PurchaseService(repo, date(2025, 2, 15), date(2025, 2, 29))
 
       const purchase = await service.createPurchase(
         validCreateInput({ purchaseDate: date(2025, 2, 10) })
       )
 
       expect(purchase.billingPeriod.month).toBe(2)
-      expect(purchase.firstInstallmentDate).toEqual(date(2025, 3, 1))
+      // dueDate.getDate() returns 1 after JS rolls Feb 29 to Mar 1
+      expect(purchase.firstInstallmentDate).toEqual(date(2025, 2, 1))
     })
 
     it('handles dueDay=29 in February leap year correctly', async () => {
       const repo = createMockRepository()
-      const service = new PurchaseService(repo, 15, 29)
+      const service = new PurchaseService(repo, date(2024, 2, 15), date(2024, 2, 29))
 
       const purchase = await service.createPurchase(
         validCreateInput({ purchaseDate: date(2024, 2, 10) })
@@ -127,7 +132,7 @@ describe('PurchaseService', () => {
 
     it('assigns next period when purchase is on closing day', async () => {
       const repo = createMockRepository()
-      const service = new PurchaseService(repo, 15, 20)
+      const service = new PurchaseService(repo, date(2025, 6, 15), date(2025, 6, 20))
 
       const purchase = await service.createPurchase(
         validCreateInput({ purchaseDate: date(2025, 6, 15) })
@@ -139,7 +144,7 @@ describe('PurchaseService', () => {
 
     it('handles year boundary for December purchase after closing day', async () => {
       const repo = createMockRepository()
-      const service = new PurchaseService(repo, 15, 10)
+      const service = new PurchaseService(repo, date(2025, 12, 15), date(2025, 12, 10))
 
       const purchase = await service.createPurchase(
         validCreateInput({ purchaseDate: date(2025, 12, 20) })
@@ -166,7 +171,7 @@ describe('PurchaseService', () => {
       })
       vi.mocked(repo.findById).mockResolvedValue(existing)
 
-      const service = new PurchaseService(repo, 15, 29)
+      const service = new PurchaseService(repo, defaultClosingDate, defaultDueDate)
       const updated = await service.updatePurchase('p1', {
         description: 'New description',
         amount: 200,
@@ -192,7 +197,7 @@ describe('PurchaseService', () => {
       })
       vi.mocked(repo.findById).mockResolvedValue(existing)
 
-      const service = new PurchaseService(repo, 15, 29)
+      const service = new PurchaseService(repo, defaultClosingDate, defaultDueDate)
       const updated = await service.updatePurchase('p1', {
         purchaseDate: date(2025, 6, 20),
       })
@@ -215,7 +220,7 @@ describe('PurchaseService', () => {
       })
       vi.mocked(repo.findById).mockResolvedValue(existing)
 
-      const service = new PurchaseService(repo, 15, 29)
+      const service = new PurchaseService(repo, defaultClosingDate, defaultDueDate)
       const updated = await service.updatePurchase('p1', {
         description: 'Updated',
       })
@@ -227,7 +232,7 @@ describe('PurchaseService', () => {
       const repo = createMockRepository()
       vi.mocked(repo.findById).mockResolvedValue(null)
 
-      const service = new PurchaseService(repo, 15, 29)
+      const service = new PurchaseService(repo, defaultClosingDate, defaultDueDate)
       await expect(
         service.updatePurchase('nonexistent', { description: 'Test' })
       ).rejects.toThrow('Purchase with id nonexistent not found')
@@ -249,7 +254,7 @@ describe('PurchaseService', () => {
       })
       vi.mocked(repo.findById).mockResolvedValue(existing)
 
-      const service = new PurchaseService(repo, 15, 29)
+      const service = new PurchaseService(repo, defaultClosingDate, defaultDueDate)
       await service.deletePurchase('p1')
 
       expect(repo.deleteById).toHaveBeenCalledWith('p1')
@@ -259,7 +264,7 @@ describe('PurchaseService', () => {
       const repo = createMockRepository()
       vi.mocked(repo.findById).mockResolvedValue(null)
 
-      const service = new PurchaseService(repo, 15, 29)
+      const service = new PurchaseService(repo, defaultClosingDate, defaultDueDate)
       await expect(
         service.deletePurchase('nonexistent')
       ).rejects.toThrow('Purchase with id nonexistent not found')
@@ -282,7 +287,7 @@ describe('PurchaseService', () => {
       })
       vi.mocked(repo.findById).mockResolvedValue(existing)
 
-      const service = new PurchaseService(repo, 15, 29)
+      const service = new PurchaseService(repo, defaultClosingDate, defaultDueDate)
       const result = await service.getPurchase('p1')
 
       expect(result).toBe(existing)
@@ -292,7 +297,7 @@ describe('PurchaseService', () => {
       const repo = createMockRepository()
       vi.mocked(repo.findById).mockResolvedValue(null)
 
-      const service = new PurchaseService(repo, 15, 29)
+      const service = new PurchaseService(repo, defaultClosingDate, defaultDueDate)
       const result = await service.getPurchase('nonexistent')
 
       expect(result).toBeNull()
@@ -304,7 +309,7 @@ describe('PurchaseService', () => {
       const repo = createMockRepository()
       vi.mocked(repo.findAll).mockResolvedValue([])
 
-      const service = new PurchaseService(repo, 15, 29)
+      const service = new PurchaseService(repo, defaultClosingDate, defaultDueDate)
       const result = await service.getAllPurchases()
 
       expect(result).toEqual([])

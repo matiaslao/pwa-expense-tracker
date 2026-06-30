@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import { Dashboard } from '../Dashboard'
 import type { DashboardService } from '../../../application/services/DashboardService'
+import type { PeriodSnapshotService } from '../../../application/services/PeriodSnapshotService'
 import { BillingPeriod } from '../../../domain/valueObjects/BillingPeriod'
 
 function createMockService(summary: any): DashboardService {
@@ -12,10 +13,22 @@ function createMockService(summary: any): DashboardService {
   } as unknown as DashboardService
 }
 
+function createMockSnapshotService(snapshot: any): PeriodSnapshotService {
+  return {
+    getLatestSnapshot: vi.fn().mockResolvedValue(snapshot),
+    getAllSnapshots: vi.fn(),
+    checkAndCapture: vi.fn(),
+  } as unknown as PeriodSnapshotService
+}
+
+const defaultClosingDate = new Date(2026, 6, 23)
+const defaultDueDate = new Date(2026, 7, 6)
+
 describe('Dashboard', () => {
   it('shows loading state initially', () => {
     const service = createMockService(null)
-    render(<Dashboard dashboardService={service} closingDay={15} dueDay={29} />)
+    const snapshotService = createMockSnapshotService(null)
+    render(<Dashboard dashboardService={service} snapshotService={snapshotService} closingDate={defaultClosingDate} dueDate={defaultDueDate} />)
 
     expect(screen.getByText('Loading...')).toBeInTheDocument()
   })
@@ -27,50 +40,65 @@ describe('Dashboard', () => {
       installmentCount: 3,
     }
     const service = createMockService(summary)
-    render(<Dashboard dashboardService={service} closingDay={15} dueDay={29} />)
+    const snapshotService = createMockSnapshotService(null)
+    render(<Dashboard dashboardService={service} snapshotService={snapshotService} closingDate={defaultClosingDate} dueDate={defaultDueDate} />)
 
     expect(await screen.findByText('2025-07')).toBeInTheDocument()
     expect(await screen.findByText('$500.00')).toBeInTheDocument()
     expect(await screen.findByText('3')).toBeInTheDocument()
   })
 
-  it('shows closing day', async () => {
+  it('shows previous period section with snapshot data', async () => {
+    const summary = {
+      period: new BillingPeriod(7, 2025),
+      totalDue: 500,
+      installmentCount: 3,
+    }
+    const snapshot = {
+      id: 's1',
+      period: new BillingPeriod(6, 2025),
+      closingDate: new Date(2026, 5, 23),
+      dueDate: new Date(2026, 6, 7),
+      totalAmount: 300,
+      purchaseCount: 2,
+      capturedAt: new Date(),
+    }
+    const service = createMockService(summary)
+    const snapshotService = createMockSnapshotService(snapshot)
+    render(<Dashboard dashboardService={service} snapshotService={snapshotService} closingDate={defaultClosingDate} dueDate={defaultDueDate} />)
+
+    expect(await screen.findByText('2025-06')).toBeInTheDocument()
+    expect(await screen.findByText('$300.00')).toBeInTheDocument()
+    expect(await screen.findByText('2')).toBeInTheDocument()
+  })
+
+  it('shows dash for previous period when no snapshot', async () => {
     const summary = {
       period: new BillingPeriod(7, 2025),
       totalDue: 0,
       installmentCount: 0,
     }
     const service = createMockService(summary)
-    render(<Dashboard dashboardService={service} closingDay={15} dueDay={29} />)
+    const snapshotService = createMockSnapshotService(null)
+    render(<Dashboard dashboardService={service} snapshotService={snapshotService} closingDate={defaultClosingDate} dueDate={defaultDueDate} />)
 
-    expect(await screen.findByText('15th')).toBeInTheDocument()
+    expect(await screen.findByText('-')).toBeInTheDocument()
   })
 
-  it('shows due date', async () => {
-    const summary = {
-      period: new BillingPeriod(7, 2025),
-      totalDue: 0,
-      installmentCount: 0,
-    }
-    const service = createMockService(summary)
-    render(<Dashboard dashboardService={service} closingDay={15} dueDay={29} />)
-
-    expect(await screen.findByText('29th')).toBeInTheDocument()
-  })
-
-  it('re-fetches summary when closingDay changes', async () => {
+  it('re-fetches summary when closingDate changes', async () => {
     const summary = {
       period: new BillingPeriod(7, 2025),
       totalDue: 500,
       installmentCount: 3,
     }
     const service = createMockService(summary)
-    const { rerender } = render(<Dashboard dashboardService={service} closingDay={15} dueDay={29} />)
+    const snapshotService = createMockSnapshotService(null)
+    const { rerender } = render(<Dashboard dashboardService={service} snapshotService={snapshotService} closingDate={defaultClosingDate} dueDate={defaultDueDate} />)
 
     await screen.findByText('$500.00')
     expect(service.getCurrentPeriodSummary).toHaveBeenCalledTimes(1)
 
-    rerender(<Dashboard dashboardService={service} closingDay={20} dueDay={29} />)
+    rerender(<Dashboard dashboardService={service} snapshotService={snapshotService} closingDate={new Date(2026, 7, 23)} dueDate={defaultDueDate} />)
 
     await waitFor(() => {
       expect(service.getCurrentPeriodSummary).toHaveBeenCalledTimes(2)

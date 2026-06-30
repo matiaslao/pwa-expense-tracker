@@ -7,8 +7,8 @@ export interface CurrentPeriodSummary {
   period: BillingPeriod
   totalDue: number
   installmentCount: number
-  closingDay: number
-  dueDay: number
+  closingDate: Date
+  dueDate: Date
 }
 
 export interface FutureCommitment {
@@ -18,18 +18,18 @@ export interface FutureCommitment {
 
 export class DashboardService {
   private repository: PurchaseRepository
-  private closingDay: number
-  private dueDay: number
+  private closingDate: Date
+  private dueDate: Date
 
-  constructor(repository: PurchaseRepository, closingDay: number, dueDay: number) {
+  constructor(repository: PurchaseRepository, closingDate: Date, dueDate: Date) {
     this.repository = repository
-    this.closingDay = closingDay
-    this.dueDay = dueDay
+    this.closingDate = closingDate
+    this.dueDate = dueDate
   }
 
   async getCurrentPeriodSummary(): Promise<CurrentPeriodSummary> {
     const now = new Date()
-    const currentPeriod = calculateBillingPeriod(this.closingDay, now)
+    const currentPeriod = calculateBillingPeriod(this.closingDate, now)
     const purchases = await this.repository.findAll()
     const inPeriod = purchases.filter(p => p.billingPeriod.equals(currentPeriod))
 
@@ -45,14 +45,14 @@ export class DashboardService {
       period: currentPeriod,
       totalDue,
       installmentCount: inPeriod.length,
-      closingDay: this.closingDay,
-      dueDay: this.dueDay,
+      closingDate: this.closingDate,
+      dueDate: this.dueDate,
     }
   }
 
   async getFutureCommitments(): Promise<FutureCommitment[]> {
     const now = new Date()
-    const currentPeriod = calculateBillingPeriod(this.closingDay, now)
+    const currentPeriod = calculateBillingPeriod(this.closingDate, now)
     const purchases = await this.repository.findAll()
     const commitments = new Map<string, number>()
 

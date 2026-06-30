@@ -11,12 +11,25 @@ export class ConfigRepositoryImpl implements ConfigRepository {
 
   async getSettings(): Promise<CardSettings> {
     const record = await this.db.settings.get('card')
-    return record
-      ? { closingDay: record.closingDay, dueDay: record.dueDay }
-      : { closingDay: 15, dueDay: 29 }
+    if (record) {
+      const closingDate = new Date(record.closingDate)
+      const dueDate = new Date(record.dueDate)
+      if (!isNaN(closingDate.getTime()) && !isNaN(dueDate.getTime())) {
+        return { closingDate, dueDate }
+      }
+    }
+    const now = new Date()
+    const defaultClosing = new Date(now.getFullYear(), 6, 23)
+    const defaultDue = new Date(defaultClosing)
+    defaultDue.setDate(defaultDue.getDate() + 14)
+    return { closingDate: defaultClosing, dueDate: defaultDue }
   }
 
   async saveSettings(settings: CardSettings): Promise<void> {
-    await this.db.settings.put({ key: 'card', ...settings })
+    await this.db.settings.put({
+      key: 'card',
+      closingDate: settings.closingDate,
+      dueDate: settings.dueDate,
+    })
   }
 }

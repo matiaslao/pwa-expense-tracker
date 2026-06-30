@@ -1,4 +1,4 @@
 export interface CardSettings {
-  closingDay: number
-  dueDay: number
+  closingDate: Date
+  dueDate: Date
 }
