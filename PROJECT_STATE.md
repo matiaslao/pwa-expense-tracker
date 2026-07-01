@@ -59,9 +59,9 @@ Completed:
 - CR-007-TASK-02: Spanish (Argentina) UI — all components translated, locale changed to es-AR
 - CR-007-TASK-03: Component tests updated for Spanish strings
 - CR-008: PWA icon redesign — premium iOS fintech icon
-- CR-008-TASK-01: Create master SVG icon (512×512, navy/electric blue/teal, credit card + chart line)
-- CR-008-TASK-02: Generate PNG icons at all required sizes (120, 152, 180, 192, 512)
-- CR-008-TASK-03: Update favicon.svg with simplified version
+- CR-008-TASK-01: Replace icons with custom PNG — resized to all 5 required sizes
+- CR-008-TASK-02: Generate favicon.png and update index.html + vite config to reference PNG
+- CR-008-TASK-03: Remove unused SVG source files
 
 Pending:
 - CR-005-TASK-02: Projections and history retention
