@@ -54,6 +54,10 @@ Completed:
 - CR-005-TASK-02: Projections and history retention
 - CR-006: Change request analysis complete
 - CR-006-TASK-01: ActivePurchases display (date next to description, conditional installment info) + sort by purchaseDate descending
+- CR-007: Change request analysis complete
+- CR-007-TASK-01: Bottom navigation height 1.75× (98px) + layout adjustments (pb, FAB offset)
+- CR-007-TASK-02: Spanish (Argentina) UI — all components translated, locale changed to es-AR
+- CR-007-TASK-03: Component tests updated for Spanish strings
 
 Pending:
 - None
@@ -62,4 +66,4 @@ Blockers:
 - None
 
 Next Action:
-Awaiting next change request
+Bottom nav sizing and Spanish AR UI implemented

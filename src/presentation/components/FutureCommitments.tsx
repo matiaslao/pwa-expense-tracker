@@ -24,13 +24,13 @@ export function FutureCommitments({ dashboardService }: FutureCommitmentsProps) 
   }, [dashboardService])
 
   if (loading) {
-    return <Typography sx={{ p: 2, textAlign: 'center' }}>Loading...</Typography>
+    return <Typography sx={{ p: 2, textAlign: 'center' }}>Cargando...</Typography>
   }
 
   if (commitments.length === 0) {
     return (
       <Paper sx={{ p: 3, mx: 2, my: 2, textAlign: 'center' }}>
-        <Typography color="text.secondary">No future commitments</Typography>
+        <Typography color="text.secondary">Sin compromisos futuros</Typography>
       </Paper>
     )
   }
@@ -38,7 +38,7 @@ export function FutureCommitments({ dashboardService }: FutureCommitmentsProps) 
   return (
     <Paper sx={{ mx: 2, my: 2 }}>
       <Typography variant="h6" sx={{ px: 2, pt: 2, pb: 1 }}>
-        Future Commitments
+        Compromisos Futuros
       </Typography>
       <List>
         {commitments.map((c) => (

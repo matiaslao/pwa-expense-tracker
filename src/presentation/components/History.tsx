@@ -8,7 +8,7 @@ import type { PeriodSnapshotService } from '../../application/services/PeriodSna
 import type { PeriodSnapshot } from '../../domain/types/PeriodSnapshot'
 
 function formatDate(d: Date): string {
-  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  return d.toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
 interface HistoryProps {
@@ -27,13 +27,13 @@ export function History({ snapshotService }: HistoryProps) {
   }, [snapshotService])
 
   if (loading) {
-    return <Typography sx={{ p: 2, textAlign: 'center' }}>Loading...</Typography>
+    return <Typography sx={{ p: 2, textAlign: 'center' }}>Cargando...</Typography>
   }
 
   if (snapshots.length === 0) {
     return (
       <Paper sx={{ p: 3, mx: 2, my: 2, textAlign: 'center' }}>
-        <Typography color="text.secondary">No history yet</Typography>
+        <Typography color="text.secondary">Sin historial aún</Typography>
       </Paper>
     )
   }
@@ -44,7 +44,7 @@ export function History({ snapshotService }: HistoryProps) {
   return (
     <Paper sx={{ mx: 2, my: 2 }}>
       <Typography variant="h6" sx={{ px: 2, pt: 2, pb: 1 }}>
-        History
+        Historial
       </Typography>
       <Box sx={{ px: 2, pb: 2 }}>
         {snapshots.map((s) => (
@@ -81,7 +81,7 @@ export function History({ snapshotService }: HistoryProps) {
                 }}
               />
               <Typography variant="body2" sx={{ minWidth: 80, textAlign: 'right' }}>
-                {s.purchaseCount} purchase{s.purchaseCount !== 1 ? 's' : ''}
+                {s.purchaseCount} compra{s.purchaseCount !== 1 ? 's' : ''}
               </Typography>
             </Box>
           </Box>

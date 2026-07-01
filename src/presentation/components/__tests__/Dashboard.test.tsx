@@ -30,10 +30,10 @@ describe('Dashboard', () => {
     const snapshotService = createMockSnapshotService(null)
     render(<Dashboard dashboardService={service} snapshotService={snapshotService} closingDate={defaultClosingDate} dueDate={defaultDueDate} />)
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(screen.getByText('Cargando...')).toBeInTheDocument()
   })
 
-  it('displays current period summary with Purchases label', async () => {
+  it('displays current period summary with Compras label', async () => {
     const summary = {
       period: new BillingPeriod(7, 2025),
       totalDue: 500,
@@ -43,11 +43,11 @@ describe('Dashboard', () => {
     const snapshotService = createMockSnapshotService(null)
     render(<Dashboard dashboardService={service} snapshotService={snapshotService} closingDate={defaultClosingDate} dueDate={defaultDueDate} />)
 
-    expect(await screen.findByText('Current Period')).toBeInTheDocument()
+    expect(await screen.findByText('Período Actual')).toBeInTheDocument()
     expect(await screen.findByText('2025-07')).toBeInTheDocument()
     expect(await screen.findByText('$500.00')).toBeInTheDocument()
     expect(await screen.findByText('3')).toBeInTheDocument()
-    expect(screen.getAllByText('Purchases').length).toBe(2)
+    expect(screen.getAllByText('Compras').length).toBe(2)
   })
 
   it('shows previous period section with snapshot data below current period', async () => {
@@ -69,7 +69,7 @@ describe('Dashboard', () => {
     const snapshotService = createMockSnapshotService(snapshot)
     render(<Dashboard dashboardService={service} snapshotService={snapshotService} closingDate={defaultClosingDate} dueDate={defaultDueDate} />)
 
-    expect(await screen.findByText('Previous Period')).toBeInTheDocument()
+    expect(await screen.findByText('Período Anterior')).toBeInTheDocument()
     expect(await screen.findByText('2025-06')).toBeInTheDocument()
     expect(await screen.findByText('$300.00')).toBeInTheDocument()
     expect(await screen.findByText('2')).toBeInTheDocument()
@@ -85,7 +85,7 @@ describe('Dashboard', () => {
     const snapshotService = createMockSnapshotService(null)
     render(<Dashboard dashboardService={service} snapshotService={snapshotService} closingDate={defaultClosingDate} dueDate={defaultDueDate} />)
 
-    expect(await screen.findByText('Previous Period')).toBeInTheDocument()
+    expect(await screen.findByText('Período Anterior')).toBeInTheDocument()
     const dashes = screen.getAllByText('-')
     expect(dashes.length).toBe(5)
   })

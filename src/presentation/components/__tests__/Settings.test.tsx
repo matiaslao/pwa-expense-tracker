@@ -20,7 +20,7 @@ describe('Settings', () => {
     const repo = createMockRepo()
     render(<Settings configRepository={repo} />)
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(screen.getByText('Cargando...')).toBeInTheDocument()
   })
 
   it('renders fields with current settings', async () => {
@@ -36,11 +36,11 @@ describe('Settings', () => {
     const user = userEvent.setup()
     render(<Settings configRepository={repo} />)
 
-    const closingInput = await screen.findByLabelText(/closing date/i)
+    const closingInput = await screen.findByLabelText(/fecha de cierre/i)
     await user.clear(closingInput)
     await user.type(closingInput, '2026-07-10')
 
-    const dueInput = screen.getByLabelText(/due date/i)
+    const dueInput = screen.getByLabelText(/fecha de vencimiento/i)
     expect(dueInput).toHaveValue('2026-07-24')
   })
 
@@ -49,11 +49,11 @@ describe('Settings', () => {
     const user = userEvent.setup()
     render(<Settings configRepository={repo} />)
 
-    const closingInput = await screen.findByLabelText(/closing date/i)
+    const closingInput = await screen.findByLabelText(/fecha de cierre/i)
     await user.clear(closingInput)
     await user.type(closingInput, '2026-07-20')
 
-    const dueInput = screen.getByLabelText(/due date/i)
+    const dueInput = screen.getByLabelText(/fecha de vencimiento/i)
     expect(dueInput).toHaveValue('2026-08-03')
   })
 
@@ -64,7 +64,7 @@ describe('Settings', () => {
     render(<Settings configRepository={repo} onSave={onSave} />)
 
     await screen.findByDisplayValue('2026-07-23')
-    await user.click(screen.getByRole('button', { name: /save/i }))
+    await user.click(screen.getByRole('button', { name: /guardar/i }))
 
     await waitFor(() => {
       expect(repo.saveSettings).toHaveBeenCalled()
@@ -94,10 +94,10 @@ describe('Settings', () => {
     render(<Settings configRepository={repo} />)
 
     await screen.findByDisplayValue('2026-07-23')
-    const closingInput = screen.getByLabelText(/closing date/i)
+    const closingInput = screen.getByLabelText(/fecha de cierre/i)
     await user.clear(closingInput)
-    await user.click(screen.getByRole('button', { name: /save/i }))
+    await user.click(screen.getByRole('button', { name: /guardar/i }))
 
-    expect(await screen.findByText('Closing date is required')).toBeInTheDocument()
+    expect(await screen.findByText('La fecha de cierre es obligatoria')).toBeInTheDocument()
   })
 })

@@ -59,11 +59,11 @@ export function Settings({ configRepository, onSave, onCancel }: SettingsProps) 
     const dueDate = fromDateInputValue(dueDateStr)
 
     if (isNaN(closingDate.getTime())) {
-      setError('Closing date is required')
+      setError('La fecha de cierre es obligatoria')
       return
     }
     if (isNaN(dueDate.getTime())) {
-      setError('Due date is required')
+      setError('La fecha de vencimiento es obligatoria')
       return
     }
 
@@ -73,24 +73,24 @@ export function Settings({ configRepository, onSave, onCancel }: SettingsProps) 
       await configRepository.saveSettings(settings)
       onSave?.(settings)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      setError(err instanceof Error ? err.message : 'Ocurrió un error')
     } finally {
       setSaving(false)
     }
   }
 
   if (loading) {
-    return <Typography sx={{ p: 2, textAlign: 'center' }}>Loading...</Typography>
+    return <Typography sx={{ p: 2, textAlign: 'center' }}>Cargando...</Typography>
   }
 
   return (
     <Paper sx={{ p: 3, mx: 2, my: 2 }}>
       <Typography variant="h6" sx={{ mb: 2 }}>
-        Settings
+        Ajustes
       </Typography>
       <Box component="form" onSubmit={handleSubmit} noValidate sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <TextField
-          label="Closing Date"
+          label="Fecha de Cierre"
           type="date"
           value={closingDateStr}
           onChange={(e) => handleClosingDateChange(e.target.value)}
@@ -98,10 +98,10 @@ export function Settings({ configRepository, onSave, onCancel }: SettingsProps) 
           fullWidth
           size="small"
           InputLabelProps={{ shrink: true }}
-          helperText="Your statement closes on this date each month"
+          helperText="Tu resumen cierra en esta fecha cada mes"
         />
         <TextField
-          label="Due Date"
+          label="Fecha de Vencimiento"
           type="date"
           value={dueDateStr}
           onChange={(e) => setDueDateStr(e.target.value)}
@@ -109,7 +109,7 @@ export function Settings({ configRepository, onSave, onCancel }: SettingsProps) 
           fullWidth
           size="small"
           InputLabelProps={{ shrink: true }}
-          helperText="Your payment is due on this date"
+          helperText="Tu pago vence en esta fecha"
         />
         {error && (
           <Typography color="error" variant="body2">
@@ -119,11 +119,11 @@ export function Settings({ configRepository, onSave, onCancel }: SettingsProps) 
         <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
           {onCancel && (
             <Button onClick={onCancel} disabled={saving}>
-              Cancel
+              Cancelar
             </Button>
           )}
           <Button type="submit" variant="contained" disabled={saving}>
-            {saving ? 'Saving...' : 'Save'}
+            {saving ? 'Guardando...' : 'Guardar'}
           </Button>
         </Box>
       </Box>

@@ -41,14 +41,14 @@ describe('ActivePurchases', () => {
     const service = createMockService([])
     render(<ActivePurchases dashboardService={service} />)
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(screen.getByText('Cargando...')).toBeInTheDocument()
   })
 
   it('shows empty state when no active purchases', async () => {
     const service = createMockService([])
     render(<ActivePurchases dashboardService={service} />)
 
-    const empty = await screen.findByText('No active purchases')
+    const empty = await screen.findByText('Sin compras activas')
     expect(empty).toBeInTheDocument()
   })
 
@@ -57,7 +57,7 @@ describe('ActivePurchases', () => {
     const service = createMockService([purchase])
     render(<ActivePurchases dashboardService={service} />)
 
-    const item = await screen.findByText('Test purchase — June 10, 2025')
+    const item = await screen.findByText('Test purchase — 10 de junio de 2025')
     expect(item).toBeInTheDocument()
   })
 

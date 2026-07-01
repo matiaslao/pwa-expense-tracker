@@ -30,14 +30,14 @@ describe('History', () => {
     const service = createMockService([])
     render(<History snapshotService={service} />)
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(screen.getByText('Cargando...')).toBeInTheDocument()
   })
 
   it('shows empty state when no history', async () => {
     const service = createMockService([])
     render(<History snapshotService={service} />)
 
-    const empty = await screen.findByText('No history yet')
+    const empty = await screen.findByText('Sin historial aún')
     expect(empty).toBeInTheDocument()
   })
 
@@ -50,7 +50,7 @@ describe('History', () => {
 
     expect(await screen.findByText(/2026-07/)).toBeInTheDocument()
     expect(await screen.findByText('$500.00')).toBeInTheDocument()
-    expect(await screen.findByText('3 purchases')).toBeInTheDocument()
+    expect(await screen.findByText('3 compras')).toBeInTheDocument()
   })
 
   it('renders multiple snapshots', async () => {
@@ -63,6 +63,6 @@ describe('History', () => {
 
     expect(await screen.findByText(/2026-07/)).toBeInTheDocument()
     expect(await screen.findByText(/2026-06/)).toBeInTheDocument()
-    expect(await screen.findByText('1 purchase')).toBeInTheDocument()
+    expect(await screen.findByText('1 compra')).toBeInTheDocument()
   })
 })

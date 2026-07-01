@@ -13,7 +13,7 @@ import type { DashboardService } from '../../application/services/DashboardServi
 import type { Purchase } from '../../domain/entities/Purchase'
 
 function formatDate(d: Date): string {
-  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  return d.toLocaleDateString('es-AR', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
 interface ActivePurchasesProps {
@@ -34,13 +34,13 @@ export function ActivePurchases({ dashboardService, onEdit, onDelete }: ActivePu
   }, [dashboardService])
 
   if (loading) {
-    return <Typography sx={{ p: 2, textAlign: 'center' }}>Loading...</Typography>
+    return <Typography sx={{ p: 2, textAlign: 'center' }}>Cargando...</Typography>
   }
 
   if (purchases.length === 0) {
     return (
       <Paper sx={{ p: 3, mx: 2, my: 2, textAlign: 'center' }}>
-        <Typography color="text.secondary">No active purchases</Typography>
+        <Typography color="text.secondary">Sin compras activas</Typography>
       </Paper>
     )
   }
@@ -48,7 +48,7 @@ export function ActivePurchases({ dashboardService, onEdit, onDelete }: ActivePu
   return (
     <Paper sx={{ mx: 2, my: 2 }}>
       <Typography variant="h6" sx={{ px: 2, pt: 2, pb: 1 }}>
-        Active Purchases
+        Compras Activas
       </Typography>
       <List>
         {purchases.map((purchase) => {
@@ -61,12 +61,12 @@ export function ActivePurchases({ dashboardService, onEdit, onDelete }: ActivePu
               secondaryAction={
                 <>
                   {onEdit && (
-                    <IconButton edge="end" aria-label="Edit" onClick={() => onEdit(purchase)} sx={{ mr: 1 }}>
+                    <IconButton edge="end" aria-label="Editar" onClick={() => onEdit(purchase)} sx={{ mr: 1 }}>
                       <EditIcon />
                     </IconButton>
                   )}
                   {onDelete && (
-                    <IconButton edge="end" aria-label="Delete" onClick={() => onDelete(purchase.id)}>
+                    <IconButton edge="end" aria-label="Eliminar" onClick={() => onDelete(purchase.id)}>
                       <DeleteIcon />
                     </IconButton>
                   )}
@@ -77,7 +77,7 @@ export function ActivePurchases({ dashboardService, onEdit, onDelete }: ActivePu
                 primary={`${purchase.description} — ${formatDate(purchase.purchaseDate)}`}
                 secondary={
                   purchase.installments > 1
-                    ? `$${purchase.amount.toFixed(2)} — ${installments.length} installments ($${totalRemaining.toFixed(2)} remaining)`
+                    ? `$${purchase.amount.toFixed(2)} — ${installments.length} cuotas ($${totalRemaining.toFixed(2)} restante)`
                     : `$${purchase.amount.toFixed(2)}`
                 }
               />

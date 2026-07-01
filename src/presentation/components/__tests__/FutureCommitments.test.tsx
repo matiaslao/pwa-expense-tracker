@@ -17,14 +17,14 @@ describe('FutureCommitments', () => {
     const service = createMockService([])
     render(<FutureCommitments dashboardService={service} />)
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    expect(screen.getByText('Cargando...')).toBeInTheDocument()
   })
 
   it('shows empty state when no commitments', async () => {
     const service = createMockService([])
     render(<FutureCommitments dashboardService={service} />)
 
-    const empty = await screen.findByText('No future commitments')
+    const empty = await screen.findByText('Sin compromisos futuros')
     expect(empty).toBeInTheDocument()
   })
 
